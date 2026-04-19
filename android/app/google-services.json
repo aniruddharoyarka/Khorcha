@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734536671985",
+    "project_id": "khorcha-v2",
+    "storage_bucket": "khorcha-v2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734536671985:android:a4188fe3d2ce0e9a123f50",
+        "android_client_info": {
+          "package_name": "com.example.khorcha_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8Yley7C_f8s97EkFO8ZSigvDLDJSKUKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
