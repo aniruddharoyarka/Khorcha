@@ -26,11 +26,26 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   double? userBudget;
   bool isLoadingBudget = true;
+  bool _hasAlerted = false;
 
   @override
   void initState() {
     super.initState();
     fetchBudget();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkDuePayments();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant DashboardPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_hasAlerted && widget.allTransactions != oldWidget.allTransactions) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkDuePayments();
+      });
+    }
   }
 
   Future<void> fetchBudget() async {
@@ -54,6 +69,47 @@ class _DashboardPageState extends State<DashboardPage> {
     } catch (e) {
       debugPrint("Error fetching budget: $e");
       setState(() => isLoadingBudget = false);
+    }
+  }
+
+  void _checkDuePayments() {
+    if (_hasAlerted) return;
+
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    final duePayments = widget.allTransactions.where((t) {
+      if (!t.isSubscription || t.nextPaymentDate == null) return false;
+      final paymentDate = DateTime(t.nextPaymentDate!.year, t.nextPaymentDate!.month, t.nextPaymentDate!.day);
+      return paymentDate.isBefore(today) || paymentDate.isAtSameMomentAs(today);
+    }).toList();
+
+    if (duePayments.isNotEmpty) {
+      _hasAlerted = true;
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+              SizedBox(width: 10),
+              Text("Payments Due!", style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Text(
+            "You have ${duePayments.length} subscription(s) due for payment. Please check your Upcoming Payments.",
+            style: const TextStyle(fontSize: 15, color: Colors.black87),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("Got it", style: TextStyle(color: Color(0xFF03624C), fontWeight: FontWeight.bold)),
+            )
+          ],
+        ),
+      );
     }
   }
 
@@ -145,6 +201,23 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle),
+            child: Icon(Icons.receipt_long, color: Colors.grey[400], size: 30),
+          ),
+          const SizedBox(height: 12),
+          Text(message, style: TextStyle(color: Colors.grey[500], fontSize: 15, fontWeight: FontWeight.w500)),
+        ],
+      ),
     );
   }
 
@@ -253,7 +326,7 @@ class _DashboardPageState extends State<DashboardPage> {
             limitedUpcomingPayments.isEmpty
                 ? _buildEmptyState("No upcoming payments found")
                 : SizedBox(
-              height: 160,
+              height: 165,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -291,23 +364,6 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle),
-            child: Icon(Icons.receipt_long, color: Colors.grey[400], size: 30),
-          ),
-          const SizedBox(height: 12),
-          Text(message, style: TextStyle(color: Colors.grey[500], fontSize: 15, fontWeight: FontWeight.w500)),
-        ],
       ),
     );
   }

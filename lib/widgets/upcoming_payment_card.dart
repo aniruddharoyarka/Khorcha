@@ -8,189 +8,270 @@ class UpcomingPaymentCard extends StatelessWidget {
 
   const UpcomingPaymentCard({super.key, required this.payment});
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showTransactionDetails(context, payment),
-      child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 15, bottom: 10, top: 5), // Margin for shadow
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF03624C).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.autorenew_rounded, color: Color(0xFF03624C), size: 20),
-                ),
-                if (payment.nextPaymentDate != null)
-                  Text(
-                    "${payment.nextPaymentDate!.day}/${payment.nextPaymentDate!.month}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 13),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              payment.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 5),
-            Text(
-              "৳${payment.amount.toStringAsFixed(0)}",
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: Color(0xFF03624C)),
-            ),
-          ],
-        ),
-      ),
-    );
+  // =========================
+  // MARK AS PAID
+  // =========================
+  Future<void> _markSubscriptionAsPaid(BuildContext context, TransactionModel parentSub) async {
+    final firestoreService = FirestoreService();
+    final today = DateTime.now();
+
+    try {
+      TransactionModel paymentRecord = TransactionModel(
+        id: '',
+        title: '${parentSub.title} (Paid)',
+        amount: parentSub.amount,
+        date: today,
+        category: parentSub.category,
+        type: TransactionType.expense,
+        wallet: parentSub.wallet,
+        guiltValue: parentSub.guiltValue,
+        note: 'Subscription automatically logged on ${today.day}/${today.month}/${today.year}',
+        isSubscription: false,
+      );
+
+      await firestoreService.addTransaction(paymentRecord);
+
+      DateTime baseDate = parentSub.nextPaymentDate ?? today;
+      int year = baseDate.year;
+      int month = baseDate.month + (parentSub.billingCycle ?? 1);
+      int originalDay = parentSub.date.day;
+
+      while (month > 12) {
+        month -= 12;
+        year += 1;
+      }
+
+      int daysInNextMonth = DateUtils.getDaysInMonth(year, month);
+      int clampedDay = originalDay > daysInNextMonth ? daysInNextMonth : originalDay;
+
+      DateTime newNextPaymentDate = DateTime(year, month, clampedDay);
+
+      TransactionModel updatedSub = TransactionModel(
+        id: parentSub.id,
+        title: parentSub.title,
+        amount: parentSub.amount,
+        date: parentSub.date,
+        category: parentSub.category,
+        type: parentSub.type,
+        wallet: parentSub.wallet,
+        toWallet: parentSub.toWallet,
+        guiltValue: parentSub.guiltValue,
+        note: parentSub.note,
+        isSubscription: parentSub.isSubscription,
+        billingCycle: parentSub.billingCycle,
+        nextPaymentDate: newNextPaymentDate,
+      );
+
+      await firestoreService.updateTransaction(updatedSub);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Payment logged successfully!"),
+            backgroundColor: Color(0xFF03624C),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
   }
 
-  void _showTransactionDetails(BuildContext context, TransactionModel tx) {
+  // =========================
+  // ENABLE BUTTON LOGIC
+  // =========================
+  bool _canMarkAsPaid(DateTime? date) {
+    if (date == null) return false;
+
+    final today = DateTime.now();
+
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    final paymentDateOnly = DateTime(date.year, date.month, date.day);
+
+    return !todayOnly.isBefore(paymentDateOnly);
+  }
+
+  // =========================
+  // SMART DATE TEXT
+  // =========================
+  String _getDueText(DateTime? date) {
+    if (date == null) return "No schedule";
+
+    final now = DateTime.now();
+    final difference = date.difference(now).inDays;
+
+    if (difference == 0) return "Today";
+    if (difference == 1) return "Tomorrow";
+    if (difference < 0) return "Overdue";
+    if (difference <= 7) return "In $difference days";
+
+    return "${date.day} ${_getMonthName(date.month)}";
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    return months[month - 1];
+  }
+
+  Color _getDueColor(DateTime? date) {
+    if (date == null) return Colors.grey;
+
+    final diff = date.difference(DateTime.now()).inDays;
+
+    if (diff < 0) return Colors.redAccent;
+    if (diff <= 2) return Colors.orange;
+    return Colors.green;
+  }
+
+  // =========================
+  // BOTTOM SHEET
+  // =========================
+  void _showTransactionDetails(BuildContext context, TransactionModel transaction) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom + 20,
-            top: 15,
-            left: 25,
-            right: 25,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final canMarkPaid = _canMarkAsPaid(transaction.nextPaymentDate);
+
+        return Container(
+          padding: const EdgeInsets.all(25),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Drag Handle
               Container(
                 width: 50,
                 height: 5,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-              // Header
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(color: const Color(0xFF03624C).withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.autorenew_rounded, color: Color(0xFF03624C), size: 35),
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: const Color(0xFF03624C).withOpacity(0.1),
+                child: const Icon(Icons.event_repeat_rounded,
+                    color: Color(0xFF03624C), size: 35),
               ),
               const SizedBox(height: 15),
-              Text(
-                "৳${tx.amount.toStringAsFixed(2)}",
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Color(0xFF03624C), letterSpacing: -1),
-              ),
+
+              Text(transaction.title,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+
               const SizedBox(height: 5),
-              Text(
-                tx.title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87),
-                textAlign: TextAlign.center,
+
+              Text("৳${transaction.amount.toStringAsFixed(0)}",
+                  style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF03624C))),
+
+              const SizedBox(height: 25),
+
+              _buildDetailRow("Category", transaction.category, Icons.category_outlined),
+              const SizedBox(height: 15),
+
+              _buildDetailRow("Wallet", transaction.wallet, Icons.account_balance_wallet_outlined),
+              const SizedBox(height: 15),
+
+              _buildDetailRow(
+                "Next Payment",
+                _getDueText(transaction.nextPaymentDate),
+                Icons.calendar_month_rounded,
               ),
 
               const SizedBox(height: 30),
 
-              // Details Group
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F7F6),
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: Column(
-                  children: [
-                    _buildDetailRow("Category", tx.category, Icons.category_outlined),
-                    const Divider(height: 25, thickness: 1, color: Colors.black12),
-
-                    // Added "Last Paid" row using the base transaction date
-                    _buildDetailRow("Last Paid", "${tx.date.day}/${tx.date.month}/${tx.date.year}", Icons.history_rounded),
-                    const Divider(height: 25, thickness: 1, color: Colors.black12),
-
-                    if (tx.nextPaymentDate != null) ...[
-                      _buildDetailRow("Next Payment", "${tx.nextPaymentDate!.day}/${tx.nextPaymentDate!.month}/${tx.nextPaymentDate!.year}", Icons.event_rounded),
-                      const Divider(height: 25, thickness: 1, color: Colors.black12),
-                    ],
-
-                    _buildDetailRow("Billing Cycle", tx.billingCycle == 1 ? "Monthly" : "Every ${tx.billingCycle} Months", Icons.update_rounded),
-
-                    if (tx.note != null && tx.note!.isNotEmpty) ...[
-                      const Divider(height: 25, thickness: 1, color: Colors.black12),
-                      _buildDetailRow("Note", tx.note!, Icons.notes_outlined),
-                    ],
-                  ],
+              // MARK AS PAID BUTTON (WITH LOGIC)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: canMarkPaid
+                      ? () => _markSubscriptionAsPaid(ctx, transaction)
+                      : null,
+                  icon: Icon(
+                    Icons.check_circle_outline,
+                    color: canMarkPaid ? Colors.white : Colors.white70,
+                  ),
+                  label: Text(
+                    canMarkPaid
+                        ? "Mark as Paid"
+                        : _getDueText(transaction.nextPaymentDate),
+                    style: TextStyle(
+                      color: canMarkPaid ? Colors.white : Colors.white70,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: canMarkPaid
+                        ? const Color(0xFF03624C)
+                        : Colors.grey,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
 
-              // Action Buttons (Edit & Delete)
               Row(
                 children: [
-                  // Edit Button
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context); // Close the modal
+                        Navigator.pop(ctx);
                         Navigator.push(
-                          context,
+                          ctx,
                           MaterialPageRoute(
-                            builder: (context) => TransactionPage(transactionToEdit: tx),
+                            builder: (context) =>
+                                TransactionPage(transactionToEdit: transaction),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
-                      label: const Text("Edit", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                      icon: const Icon(Icons.edit_outlined, color: Colors.black87),
+                      label: const Text("Edit",
+                          style: TextStyle(color: Colors.black87)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF03624C),
+                        backgroundColor: Colors.grey[200],
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                       ),
                     ),
                   ),
                   const SizedBox(width: 15),
-
-                  // Delete Button
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () async {
-                        await FirestoreService().deleteTransaction(tx.id);
-                        if (context.mounted) Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Transaction deleted"), backgroundColor: Colors.redAccent),
-                        );
+                      onPressed: () {
+                        FirestoreService().deleteTransaction(transaction.id);
+                        Navigator.pop(ctx);
                       },
-                      icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
-                      label: const Text("Delete", style: TextStyle(color: Colors.redAccent, fontSize: 15, fontWeight: FontWeight.w700)),
+                      icon: const Icon(Icons.delete_outline_rounded,
+                          color: Colors.redAccent),
+                      label: const Text("Delete",
+                          style: TextStyle(color: Colors.redAccent)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent.withOpacity(0.1),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                       ),
                     ),
                   ),
@@ -211,19 +292,111 @@ class UpcomingPaymentCard extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: Colors.black54),
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500)),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w500)),
           ],
         ),
         Expanded(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
+    );
+  }
+
+  // =========================
+  // CARD UI
+  // =========================
+  @override
+  Widget build(BuildContext context) {
+    final dueText = _getDueText(payment.nextPaymentDate);
+    final dueColor = _getDueColor(payment.nextPaymentDate);
+
+    return GestureDetector(
+      onTap: () => _showTransactionDetails(context, payment),
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 15, bottom: 10, top: 5),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF03624C).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.event_repeat_rounded,
+                  color: Color(0xFF03624C), size: 20),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              payment.title,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+
+            const SizedBox(height: 4),
+
+            Row(
+              children: [
+                Text(
+                  "৳${payment.amount.toStringAsFixed(0)}",
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF03624C)),
+                ),
+                const SizedBox(width: 5),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: dueColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    dueText,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: dueColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
