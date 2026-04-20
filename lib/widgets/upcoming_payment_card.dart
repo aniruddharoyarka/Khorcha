@@ -164,7 +164,7 @@ class UpcomingPaymentCard extends StatelessWidget {
               CircleAvatar(
                 radius: 35,
                 backgroundColor: const Color(0xFF03624C).withOpacity(0.1),
-                child: const Icon(Icons.event_repeat_rounded,
+                child: const Icon(Icons.autorenew,
                     color: Color(0xFF03624C), size: 35),
               ),
               const SizedBox(height: 15),
@@ -350,7 +350,7 @@ class UpcomingPaymentCard extends StatelessWidget {
                 color: const Color(0xFF03624C).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.event_repeat_rounded,
+              child: const Icon(Icons.autorenew,
                   color: Color(0xFF03624C), size: 20),
             ),
 

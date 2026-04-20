@@ -273,7 +273,7 @@ class _DashboardPageState extends State<DashboardPage> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 30),
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
 
             DashboardHeader(
               name: user?.displayName ?? "User",
@@ -285,7 +285,7 @@ class _DashboardPageState extends State<DashboardPage> {
               onCardsPressed: () => _showWalletsBottomSheet(walletBalances, totalBalance),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 15),
 
             // REVERTED to use Total Expense again!
             BalanceCard(
@@ -293,7 +293,7 @@ class _DashboardPageState extends State<DashboardPage> {
               totalExpense: totalExpense,
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 15),
 
             StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
@@ -308,7 +308,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 return Column(
                   children: [
                     BudgetCard(spent: totalExpense, total: budget),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 15),
                   ],
                 );
               },
@@ -337,7 +337,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 15),
 
             SectionTitle(
               title: "Recent Transactions",
