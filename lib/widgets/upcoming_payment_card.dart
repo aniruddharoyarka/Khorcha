@@ -142,142 +142,144 @@ class UpcomingPaymentCard extends StatelessWidget {
       builder: (ctx) {
         final canMarkPaid = _canMarkAsPaid(transaction.nextPaymentDate);
 
-        return Container(
-          padding: const EdgeInsets.all(25),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 50,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              CircleAvatar(
-                radius: 35,
-                backgroundColor: const Color(0xFF03624C).withOpacity(0.1),
-                child: const Icon(Icons.autorenew,
-                    color: Color(0xFF03624C), size: 35),
-              ),
-              const SizedBox(height: 15),
-
-              Text(transaction.title,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-
-              const SizedBox(height: 5),
-
-              Text("৳${transaction.amount.toStringAsFixed(0)}",
-                  style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF03624C))),
-
-              const SizedBox(height: 25),
-
-              _buildDetailRow("Category", transaction.category, Icons.category_outlined),
-              const SizedBox(height: 15),
-
-              _buildDetailRow("Wallet", transaction.wallet, Icons.account_balance_wallet_outlined),
-              const SizedBox(height: 15),
-
-              _buildDetailRow(
-                "Next Payment",
-                _getDueText(transaction.nextPaymentDate),
-                Icons.calendar_month_rounded,
-              ),
-
-              const SizedBox(height: 30),
-
-              // MARK AS PAID BUTTON (WITH LOGIC)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: canMarkPaid
-                      ? () => _markSubscriptionAsPaid(ctx, transaction)
-                      : null,
-                  icon: Icon(
-                    Icons.check_circle_outline,
-                    color: canMarkPaid ? Colors.white : Colors.white70,
+        return SafeArea(
+          child: Container(
+            padding: const EdgeInsets.all(25),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 50,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  label: Text(
-                    canMarkPaid
-                        ? "Mark as Paid"
-                        : _getDueText(transaction.nextPaymentDate),
-                    style: TextStyle(
+                ),
+                const SizedBox(height: 20),
+          
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: const Color(0xFF03624C).withOpacity(0.1),
+                  child: const Icon(Icons.autorenew,
+                      color: Color(0xFF03624C), size: 35),
+                ),
+                const SizedBox(height: 15),
+          
+                Text(transaction.title,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          
+                const SizedBox(height: 5),
+          
+                Text("৳${transaction.amount.toStringAsFixed(0)}",
+                    style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF03624C))),
+          
+                const SizedBox(height: 25),
+          
+                _buildDetailRow("Category", transaction.category, Icons.category_outlined),
+                const SizedBox(height: 15),
+          
+                _buildDetailRow("Wallet", transaction.wallet, Icons.account_balance_wallet_outlined),
+                const SizedBox(height: 15),
+          
+                _buildDetailRow(
+                  "Next Payment",
+                  _getDueText(transaction.nextPaymentDate),
+                  Icons.calendar_month_rounded,
+                ),
+          
+                const SizedBox(height: 30),
+          
+                // MARK AS PAID BUTTON (WITH LOGIC)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: canMarkPaid
+                        ? () => _markSubscriptionAsPaid(ctx, transaction)
+                        : null,
+                    icon: Icon(
+                      Icons.check_circle_outline,
                       color: canMarkPaid ? Colors.white : Colors.white70,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: canMarkPaid
-                        ? const Color(0xFF03624C)
-                        : Colors.grey,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                    label: Text(
+                      canMarkPaid
+                          ? "Mark as Paid"
+                          : _getDueText(transaction.nextPaymentDate),
+                      style: TextStyle(
+                        color: canMarkPaid ? Colors.white : Colors.white70,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canMarkPaid
+                          ? const Color(0xFF03624C)
+                          : Colors.grey,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 15),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        Navigator.push(
-                          ctx,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                TransactionPage(transactionToEdit: transaction),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.edit_outlined, color: Colors.black87),
-                      label: const Text("Edit",
-                          style: TextStyle(color: Colors.black87)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[200],
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
+          
+                const SizedBox(height: 15),
+          
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          Navigator.push(
+                            ctx,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TransactionPage(transactionToEdit: transaction),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit_outlined, color: Colors.black87),
+                        label: const Text("Edit",
+                            style: TextStyle(color: Colors.black87)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        FirestoreService().deleteTransaction(transaction.id);
-                        Navigator.pop(ctx);
-                      },
-                      icon: const Icon(Icons.delete_outline_rounded,
-                          color: Colors.redAccent),
-                      label: const Text("Delete",
-                          style: TextStyle(color: Colors.redAccent)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent.withOpacity(0.1),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          FirestoreService().deleteTransaction(transaction.id);
+                          Navigator.pop(ctx);
+                        },
+                        icon: const Icon(Icons.delete_outline_rounded,
+                            color: Colors.redAccent),
+                        label: const Text("Delete",
+                            style: TextStyle(color: Colors.redAccent)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent.withOpacity(0.1),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

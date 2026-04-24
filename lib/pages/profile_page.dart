@@ -331,7 +331,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Divider(color: Color(0xFFF4F7F6), thickness: 2),
               ),
               const Text(
-                "Khorcha is your personal finance companion.\nDeveloped by Aniruddha Roy Arka",
+                "Khorcha is your personal finance companion.\nDeveloped by Ushriba Rahman & Aniruddha Roy Arka",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 15, color: Colors.black87, height: 1.5),
               ),
