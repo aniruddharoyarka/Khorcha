@@ -124,7 +124,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       body: SafeArea(
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
           children: [
             MonthlySummaryCard(
               transactions: widget.transactions,
