@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khorcha/models/transactions.dart';
 import 'package:khorcha/widgets/recent_transactions_card.dart';
+import 'package:khorcha/widgets/upcoming_payment_card.dart';
 
 class UpcomingPaymentsPage extends StatelessWidget {
   final List<TransactionModel> payments;
@@ -25,7 +26,7 @@ class UpcomingPaymentsPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Prevents cards from touching screen edges
         itemCount: payments.length,
         itemBuilder: (context, index) {
-          return RecentTransactionsCard(transaction: payments[index]);
+          return UpcomingPaymentCard(payment: payments[index]);
         },
       ),
     );

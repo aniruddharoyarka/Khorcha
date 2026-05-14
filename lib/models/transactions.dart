@@ -13,6 +13,7 @@ class TransactionModel {
   final String? toWallet; // <-- NEW: Destination for transfers
   final String? note;
   final double guiltValue;
+  final DateTime? createdAt;
 
   //Subscription
   final bool isSubscription;
@@ -29,6 +30,7 @@ class TransactionModel {
     this.wallet = 'Cash',
     this.toWallet, // <-- NEW
     required this.guiltValue,
+    this.createdAt,
     this.note,
     this.isSubscription = false,
     this.billingCycle,
@@ -43,12 +45,18 @@ class TransactionModel {
       'category': category,
       'type': type.name,
       'wallet': wallet,
-      'toWallet': toWallet, // <-- NEW
+      'toWallet': toWallet,
       'note': note,
       'guiltValue': guiltValue,
       'isSubscription': isSubscription,
       'billingCycle': billingCycle,
       'nextPaymentDate': nextPaymentDate,
+    };
+  }
+
+  Map<String, dynamic> toCreateMap() {
+    return {
+      ...toMap(),
       'createdAt': FieldValue.serverTimestamp(),
     };
   }
@@ -74,6 +82,9 @@ class TransactionModel {
       billingCycle: data['billingCycle'],
       nextPaymentDate: data['nextPaymentDate'] != null
           ? (data['nextPaymentDate'] as Timestamp).toDate()
+          : null,
+      createdAt: data['createdAt'] != null
+          ? (data['createdAt'] as Timestamp).toDate()
           : null,
     );
   }

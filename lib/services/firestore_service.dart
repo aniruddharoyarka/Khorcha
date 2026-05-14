@@ -15,7 +15,7 @@ class FirestoreService {
         .collection('users')
         .doc(userId)
         .collection('transactions')
-        .add(tx.toMap());
+        .add(tx.toCreateMap());
   }
 
   //fetch tx
@@ -53,7 +53,7 @@ class FirestoreService {
           .collection('users')
           .doc(user.uid)
           .collection('transactions')
-          .doc(transaction.id) // Use the existing ID to overwrite
+          .doc(transaction.id)
           .update(transaction.toMap());
     }
   }

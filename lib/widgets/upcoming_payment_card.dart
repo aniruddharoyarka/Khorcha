@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khorcha/models/transactions.dart';
 import '../pages/transaction_page.dart';
@@ -18,14 +20,14 @@ class UpcomingPaymentCard extends StatelessWidget {
     try {
       TransactionModel paymentRecord = TransactionModel(
         id: '',
-        title: '${parentSub.title} (Paid)',
+        title: parentSub.title,
         amount: parentSub.amount,
         date: today,
         category: parentSub.category,
         type: TransactionType.expense,
         wallet: parentSub.wallet,
         guiltValue: parentSub.guiltValue,
-        note: 'Subscription automatically logged on ${today.day}/${today.month}/${today.year}',
+        note: 'Subscription logged on ${today.day}/${today.month}/${today.year}',
         isSubscription: false,
       );
 
@@ -259,13 +261,37 @@ class UpcomingPaymentCard extends StatelessWidget {
                     const SizedBox(width: 15),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          FirestoreService().deleteTransaction(transaction.id);
-                          Navigator.pop(ctx);
+                        onPressed: () async {
+
+                          final user = FirebaseAuth.instance.currentUser;
+
+                          if (user == null) return;
+
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(user.uid)
+                              .collection('transactions')
+                              .doc(transaction.id)
+                              .update({
+                            'isSubscription': false,
+                            'billingCycle': null,
+                            'nextPaymentDate': null,
+                          });
+
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text("Subscription cancelled"),
+                                backgroundColor: Color(0xFF03624C),
+                              ),
+                            );
+                          }
                         },
-                        icon: const Icon(Icons.delete_outline_rounded,
+                        icon: const Icon(Icons.cancel_outlined,
                             color: Colors.redAccent),
-                        label: const Text("Delete",
+                        label: const Text("Cancel",
                             style: TextStyle(color: Colors.redAccent)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent.withOpacity(0.1),
