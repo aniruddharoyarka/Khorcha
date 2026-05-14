@@ -43,13 +43,16 @@ class _TransactionPageState extends State<TransactionPage> {
   double guiltValue = 0.0;
   DateTime? nextPaymentDate;
 
-  final List<String> _incomeCategories = [
+  final List<String> _defaultIncomeCategories = [
     'Salary', 'Business', 'Investments', 'Gifts', 'Rental', 'Other',
   ];
-  final List<String> _expenseCategories = [
+  final List<String> _defaultExpenseCategories = [
     'Food', 'Housing', 'Transport', 'Health', 'Travel', 'Shopping',
     'Entertainment', 'Education', 'Finance', 'Miscellaneous',
   ];
+
+  List<String> _incomeCategories = [];
+  List<String> _expenseCategories = [];
 
   @override
   void initState() {
@@ -84,27 +87,109 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> _loadCustomCategories() async {
+
     final user = FirebaseAuth.instance.currentUser;
+
     if (user != null) {
+
       try {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-        if (doc.exists && doc.data() != null) {
-          final data = doc.data()!;
-          if (data.containsKey('customIncomeCategories')) {
-            List<String> customIncome = List<String>.from(data['customIncomeCategories']);
-            setState(() {
-              for (var cat in customIncome) if (!_incomeCategories.contains(cat)) _incomeCategories.add(cat);
-            });
-          }
-          if (data.containsKey('customExpenseCategories')) {
-            List<String> customExpense = List<String>.from(data['customExpenseCategories']);
-            setState(() {
-              for (var cat in customExpense) if (!_expenseCategories.contains(cat)) _expenseCategories.add(cat);
-            });
-          }
+
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (!doc.exists || doc.data() == null) {
+
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set({
+
+            'incomeCategories': _defaultIncomeCategories,
+            'expenseCategories': _defaultExpenseCategories,
+
+          }, SetOptions(merge: true));
+
+          setState(() {
+
+            _incomeCategories =
+                List.from(_defaultIncomeCategories);
+
+            _expenseCategories =
+                List.from(_defaultExpenseCategories);
+
+          });
+
+          return;
         }
+
+        final data = doc.data()!;
+
+        // NEW SYSTEM
+        List<String> incomeCats =
+        List<String>.from(data['incomeCategories'] ?? []);
+
+        List<String> expenseCats =
+        List<String>.from(data['expenseCategories'] ?? []);
+
+        // OLD SYSTEM (BACKWARD COMPATIBILITY)
+        List<String> oldIncome =
+        List<String>.from(data['customIncomeCategories'] ?? []);
+
+        List<String> oldExpense =
+        List<String>.from(data['customExpenseCategories'] ?? []);
+
+        // MERGE EVERYTHING
+        final mergedIncome = {
+          ...incomeCats,
+          ...oldIncome,
+        }.toList();
+
+        final mergedExpense = {
+          ...expenseCats,
+          ...oldExpense,
+        }.toList();
+
+        setState(() {
+
+          _incomeCategories
+            ..clear()
+            ..addAll(mergedIncome);
+
+          _expenseCategories
+            ..clear()
+            ..addAll(mergedExpense);
+
+        });
+
+        // AUTO MIGRATION
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .set({
+
+          'incomeCategories': mergedIncome,
+          'expenseCategories': mergedExpense,
+
+        }, SetOptions(merge: true));
+
+        // DROPDOWN SAFETY
+        final currentList =
+        _selectedType == 'Income'
+            ? _incomeCategories
+            : _expenseCategories;
+
+        if (_selectedCategory != null &&
+            !currentList.contains(_selectedCategory)) {
+
+          _selectedCategory = null;
+        }
+
       } catch (e) {
-        debugPrint("Error loading custom categories: $e");
+
+        debugPrint("Error loading categories: $e");
+
       }
     }
   }
@@ -142,7 +227,17 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   void _saveNewCategory() async {
-    String newCategory = _newCategoryController.text.trim();
+    String newCategory =
+    _newCategoryController.text
+        .trim()
+        .toLowerCase();
+
+    if (newCategory.isEmpty) return;
+
+    newCategory =
+        newCategory[0].toUpperCase() +
+            newCategory.substring(1);
+
     if (newCategory.isNotEmpty) {
       bool isIncome = _selectedType == 'Income';
 
@@ -159,7 +254,10 @@ class _TransactionPageState extends State<TransactionPage> {
 
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        String fieldName = isIncome ? 'customIncomeCategories' : 'customExpenseCategories';
+        String fieldName =
+        isIncome
+            ? 'incomeCategories'
+            : 'expenseCategories';
         await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
           fieldName: FieldValue.arrayUnion([newCategory])
         }, SetOptions(merge: true));
