@@ -64,6 +64,12 @@ class _RegisterPageState extends State<RegisterPage> {
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'budget': 0,
+        'wallets': [
+          'Cash',
+          'bKash',
+          'Bank',
+          'Metro Card',
+        ],
         'createdAt': FieldValue.serverTimestamp(),
       });
 

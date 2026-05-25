@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khorcha/pages/profile_page.dart';
 import 'package:khorcha/pages/upcoming_payments_page.dart';
+import 'package:khorcha/services/firestore_service.dart';
 import 'package:khorcha/widgets/balance_card.dart';
 import 'package:khorcha/widgets/budget_card.dart';
 import 'package:khorcha/widgets/dashboard_header.dart';
@@ -27,6 +28,70 @@ class _DashboardPageState extends State<DashboardPage> {
   double? userBudget;
   bool isLoadingBudget = true;
   bool _hasAlerted = false;
+
+  void _showAddWalletDialog() {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Create Wallet',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Wallet name',
+              filled: true,
+              fillColor: const Color(0xFFF4F7F6),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final walletName = controller.text.trim();
+
+                if (walletName.isEmpty) return;
+
+                await FirestoreService().addWallet(walletName);
+
+                if (!mounted) return;
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$walletName added successfully'),
+                    backgroundColor: const Color(0xFF03624C),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF03624C),
+              ),
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -150,11 +215,42 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 25),
 
               // Title & Total Balance
-              const Text("My Wallets", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.black87)),
-              const SizedBox(height: 5),
-              Text(
-                "Total Wealth: ৳${totalBalance.toStringAsFixed(2)}",
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF03624C)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "My Wallets",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: _showAddWalletDialog,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF03624C).withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Color(0xFF03624C),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              //const SizedBox(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "Total Wealth: ৳${totalBalance.toStringAsFixed(2)}",
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF03624C)),
+                  ),
+                ],
               ),
               const SizedBox(height: 25),
 

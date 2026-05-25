@@ -7,7 +7,19 @@ class FirestoreService {
 
   String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
-  //add tx
+  // =========================
+  // DEFAULT WALLETS
+  // =========================
+  static const List<String> defaultWallets = [
+    'Cash',
+    'bKash',
+    'Bank',
+    'Metro Card',
+  ];
+
+  // =========================
+  // ADD TX
+  // =========================
   Future<void> addTransaction(TransactionModel tx) async {
     if (userId == null) return;
 
@@ -18,7 +30,9 @@ class FirestoreService {
         .add(tx.toCreateMap());
   }
 
-  //fetch tx
+  // =========================
+  // FETCH TX
+  // =========================
   Stream<List<TransactionModel>> getTransactions() {
     if (userId == null) return const Stream.empty();
 
@@ -30,12 +44,14 @@ class FirestoreService {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => TransactionModel.fromFirestore(doc))
-              .toList(),
-        );
+          .map((doc) => TransactionModel.fromFirestore(doc))
+          .toList(),
+    );
   }
 
-  /// Delete a transaction
+  // =========================
+  // DELETE TX
+  // =========================
   Future<void> deleteTransaction(String transactionId) async {
     await _db
         .collection('users')
@@ -45,9 +61,12 @@ class FirestoreService {
         .delete();
   }
 
-  //editTransaction
+  // =========================
+  // UPDATE TX
+  // =========================
   Future<void> updateTransaction(TransactionModel transaction) async {
     final user = FirebaseAuth.instance.currentUser;
+
     if (user != null) {
       await FirebaseFirestore.instance
           .collection('users')
@@ -56,5 +75,50 @@ class FirestoreService {
           .doc(transaction.id)
           .update(transaction.toMap());
     }
+  }
+
+  // =========================
+  // GET USER WALLETS
+  // =========================
+  Stream<List<String>> getWallets() {
+    if (userId == null) return Stream.value(defaultWallets);
+
+    return _db
+        .collection('users')
+        .doc(userId)
+        .snapshots()
+        .map((doc) {
+      final data = doc.data();
+
+      if (data == null || data['wallets'] == null) {
+        return defaultWallets;
+      }
+
+      final List<String> customWallets =
+      List<String>.from(data['wallets']);
+
+      // Merge old hardcoded wallets with new wallets
+      final mergedWallets = {
+        ...defaultWallets,
+        ...customWallets,
+      }.toList();
+
+      return mergedWallets;
+    });
+  }
+
+  // =========================
+  // ADD NEW WALLET
+  // =========================
+  Future<void> addWallet(String walletName) async {
+    if (userId == null) return;
+
+    final cleaned = walletName.trim();
+
+    if (cleaned.isEmpty) return;
+
+    await _db.collection('users').doc(userId).set({
+      'wallets': FieldValue.arrayUnion([cleaned])
+    }, SetOptions(merge: true));
   }
 }

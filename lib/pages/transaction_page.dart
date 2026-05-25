@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +33,27 @@ class _TransactionPageState extends State<TransactionPage> {
 
   String _selectedWallet = 'Cash';
   String _toWallet = 'Metro Card'; // <-- NEW: For transfers
+  List<String> _wallets = [];
+  StreamSubscription? _walletSubscription;
 
-  final List<String> _wallets = [
-    'Cash', 'bKash', 'Nagad', 'Rocket', 'Upay', 'Bank', 'Metro Card', 'Rapid Pass'
-  ];
+  void _listenToWallets() {
+    _walletSubscription = FirestoreService()
+        .getWallets()
+        .listen((wallets) {
+
+      setState(() {
+        _wallets = wallets;
+
+        if (!_wallets.contains(_selectedWallet)) {
+          _selectedWallet = _wallets.first;
+        }
+
+        if (!_wallets.contains(_toWallet)) {
+          _toWallet = _wallets.first;
+        }
+      });
+    });
+  }
 
   bool _isSubscription = false;
   int _billingCycle = 1;
@@ -57,6 +76,7 @@ class _TransactionPageState extends State<TransactionPage> {
   @override
   void initState() {
     super.initState();
+    _listenToWallets();
     _loadCustomCategories();
 
     if (widget.transactionToEdit != null) {
@@ -328,6 +348,79 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
+  void _showAddWalletDialog() {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Create Wallet',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Wallet name',
+              filled: true,
+              fillColor: const Color(0xFFF4F7F6),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final walletName = controller.text.trim();
+
+                if (walletName.isEmpty) return;
+
+                if (_wallets.contains(walletName)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Wallet already exists'),
+                    ),
+                  );
+                  return;
+                }
+
+                await FirestoreService().addWallet(walletName);
+
+                if (!mounted) return;
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$walletName added successfully'),
+                    backgroundColor: const Color(0xFF03624C),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF03624C),
+              ),
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -335,6 +428,7 @@ class _TransactionPageState extends State<TransactionPage> {
     _noteController.dispose();
     _newCategoryController.dispose();
     _amountFocusNode.dispose();
+    _walletSubscription?.cancel();
     super.dispose();
   }
 
