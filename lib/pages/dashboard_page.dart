@@ -31,63 +31,203 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void _showAddWalletDialog() {
     final controller = TextEditingController();
+    final balanceController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(28),
           ),
-          title: const Text(
-            'Create Wallet',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: 'Wallet name',
-              filled: true,
-              fillColor: const Color(0xFFF4F7F6),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            padding: const EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              color: Colors.white,
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final walletName = controller.text.trim();
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
 
-                if (walletName.isEmpty) return;
-
-                await FirestoreService().addWallet(walletName);
-
-                if (!mounted) return;
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$walletName added successfully'),
-                    backgroundColor: const Color(0xFF03624C),
+                // TOP ICON
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF03624C).withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF03624C),
-              ),
-              child: const Text(
-                'Create',
-                style: TextStyle(color: Colors.white),
-              ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: Color(0xFF03624C),
+                    size: 32,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // TITLE
+                const Text(
+                  'Create Wallet',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                Text(
+                  'Add a wallet with an initial balance',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 28),
+
+                // WALLET NAME FIELD
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF4F7F6),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.wallet_rounded,
+                        color: Color(0xFF03624C),
+                      ),
+                      prefixText: "  ",
+                      hintText: 'Wallet name',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // BALANCE FIELD
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF4F7F6),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: TextField(
+                    controller: balanceController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.currency_exchange_rounded,
+                        color: Color(0xFF03624C),
+                      ),
+                      prefixText: "৳ ",
+                      hintText: 'Initial balance',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // BUTTONS
+                Row(
+                  children: [
+
+                    // CANCEL
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.grey[100],
+                          foregroundColor: Colors.black87,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 15),
+
+                    // CREATE
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+
+                          final walletName =
+                          controller.text.trim();
+
+                          if (walletName.isEmpty) return;
+
+                          await FirestoreService().addWallet(
+                            walletName,
+                            double.tryParse(
+                              balanceController.text,
+                            ) ?? 0,
+                          );
+
+                          if (!mounted) return;
+
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '$walletName added successfully',
+                              ),
+                              backgroundColor:
+                              const Color(0xFF03624C),
+                              behavior:
+                              SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor:
+                          const Color(0xFF03624C),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: const Text(
+                          'Create',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -341,126 +481,156 @@ class _DashboardPageState extends State<DashboardPage> {
     double totalBalance = 0.0;
     Map<String, double> walletBalances = {};
 
-    for (var tx in widget.allTransactions) {
-      if (tx.type == TransactionType.expense && tx.date.month == now.month && tx.date.year == now.year) {
-        totalExpense += tx.amount;
-      }
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .collection('wallets')
+            .snapshots(),
 
-      // --- DYNAMIC WALLET BALANCES WITH TRANSFER LOGIC ---
-      if (tx.type == TransactionType.transfer) {
-        // Transfers don't affect Total Wealth. They just move money between wallets!
-        String fromW = tx.wallet.isNotEmpty ? tx.wallet : 'Cash';
-        String toW = tx.toWallet ?? 'Cash';
+        builder: (context, snapshot) {
 
-        walletBalances[fromW] = (walletBalances[fromW] ?? 0) - tx.amount; // Deduct from Source
-        walletBalances[toW] = (walletBalances[toW] ?? 0) + tx.amount;     // Add to Destination
-      } else {
-        double signedAmount = tx.type == TransactionType.income ? tx.amount : -tx.amount;
-        totalBalance += signedAmount;
-        String wName = tx.wallet.isNotEmpty ? tx.wallet : 'Cash';
-        walletBalances[wName] = (walletBalances[wName] ?? 0) + signedAmount;
-      }
-    }
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F6),
-      body: SafeArea(
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 30),
-          children: [
-            const SizedBox(height: 15),
-
-            DashboardHeader(
-              name: user?.displayName ?? "User",
-              onProfilePressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()));
-              },
-              onStatisticsPressed: () {},
-              // Connect the new button to our beautiful bottom sheet!
-              onCardsPressed: () => _showWalletsBottomSheet(walletBalances, totalBalance),
-            ),
-
-            const SizedBox(height: 15),
-
-            // REVERTED to use Total Expense again!
-            BalanceCard(
-              onAddPressed: widget.onAddPressed,
-              totalExpense: totalExpense,
-            ),
-
-            const SizedBox(height: 15),
-
-            StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const SizedBox();
-                final data = snapshot.data!.data() as Map<String, dynamic>?;
-                if (data == null || !data.containsKey('budget')) return const SizedBox();
-
-                double budget = (data['budget'] as num).toDouble();
-                if (budget <= 0) return const SizedBox();
-
-                return Column(
-                  children: [
-                    BudgetCard(spent: totalExpense, total: budget),
-                    const SizedBox(height: 15),
-                  ],
-                );
-              },
-            ),
-
-            SectionTitle(
-              title: "Upcoming Payments",
-              onSeeAll: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => UpcomingPaymentsPage(payments: upcomingPayments)));
-              },
-            ),
-
-            const SizedBox(height: 15),
-
-            limitedUpcomingPayments.isEmpty
-                ? _buildEmptyState("No upcoming payments found")
-                : SizedBox(
-              height: 165,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: limitedUpcomingPayments.length,
-                itemBuilder: (context, index) {
-                  return UpcomingPaymentCard(payment: limitedUpcomingPayments[index]);
-                },
+          if (!snapshot.hasData) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
               ),
+            );
+          }
+
+          final walletDocs = snapshot.data!.docs;
+          // RESET VALUES EVERY BUILD
+          totalBalance = 0;
+          walletBalances.clear();
+          totalExpense = 0;
+
+// WALLET BALANCES
+          for (var doc in walletDocs) {
+
+            final data = doc.data();
+
+            final name = data['name'];
+
+            final balance =
+            (data['balance'] as num).toDouble();
+
+            walletBalances[name] = balance;
+
+            totalBalance += balance;
+          }
+
+// MONTHLY EXPENSE CALCULATION
+          for (var tx in widget.allTransactions) {
+
+            if (tx.type == TransactionType.expense &&
+                tx.date.month == now.month &&
+                tx.date.year == now.year) {
+
+              totalExpense += tx.amount;
+            }
+          }
+
+          return Scaffold(
+          backgroundColor: const Color(0xFFF4F7F6),
+          body: SafeArea(
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 30),
+              children: [
+                const SizedBox(height: 15),
+
+                DashboardHeader(
+                  name: user?.displayName ?? "User",
+                  onProfilePressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()));
+                  },
+                  onStatisticsPressed: () {},
+                  // Connect the new button to our beautiful bottom sheet!
+                  onCardsPressed: () => _showWalletsBottomSheet(walletBalances, totalBalance),
+                ),
+
+                const SizedBox(height: 15),
+
+                // REVERTED to use Total Expense again!
+                BalanceCard(
+                  onAddPressed: widget.onAddPressed,
+                  totalExpense: totalExpense,
+                ),
+
+                const SizedBox(height: 15),
+
+                StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance.collection('users').doc(user!.uid).snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox();
+                    final data = snapshot.data!.data() as Map<String, dynamic>?;
+                    if (data == null || !data.containsKey('budget')) return const SizedBox();
+
+                    double budget = (data['budget'] as num).toDouble();
+                    if (budget <= 0) return const SizedBox();
+
+                    return Column(
+                      children: [
+                        BudgetCard(spent: totalExpense, total: budget),
+                        const SizedBox(height: 15),
+                      ],
+                    );
+                  },
+                ),
+
+                SectionTitle(
+                  title: "Upcoming Payments",
+                  onSeeAll: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => UpcomingPaymentsPage(payments: upcomingPayments)));
+                  },
+                ),
+
+                const SizedBox(height: 15),
+
+                limitedUpcomingPayments.isEmpty
+                    ? _buildEmptyState("No upcoming payments found")
+                    : SizedBox(
+                  height: 165,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: limitedUpcomingPayments.length,
+                    itemBuilder: (context, index) {
+                      return UpcomingPaymentCard(payment: limitedUpcomingPayments[index]);
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                SectionTitle(
+                  title: "Recent Transactions",
+                  onSeeAll: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AllTransactionsPage(transactions: sortedTransactions)));
+                  },
+                ),
+
+                const SizedBox(height: 15),
+
+                limitedRecentTransactions.isEmpty
+                    ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: _buildEmptyState("No transactions found yet"),
+                )
+                    : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: limitedRecentTransactions.length,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemBuilder: (context, index) {
+                    return RecentTransactionsCard(transaction: limitedRecentTransactions[index]);
+                  },
+                ),
+              ],
             ),
-
-            const SizedBox(height: 15),
-
-            SectionTitle(
-              title: "Recent Transactions",
-              onSeeAll: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AllTransactionsPage(transactions: sortedTransactions)));
-              },
-            ),
-
-            const SizedBox(height: 15),
-
-            limitedRecentTransactions.isEmpty
-                ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              child: _buildEmptyState("No transactions found yet"),
-            )
-                : ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: limitedRecentTransactions.length,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemBuilder: (context, index) {
-                return RecentTransactionsCard(transaction: limitedRecentTransactions[index]);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 }

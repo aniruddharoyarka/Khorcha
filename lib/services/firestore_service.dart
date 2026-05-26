@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:khorcha/models/wallet_model.dart';
 import '../models/transactions.dart';
 
 class FirestoreService {
@@ -80,45 +81,165 @@ class FirestoreService {
   // =========================
   // GET USER WALLETS
   // =========================
-  Stream<List<String>> getWallets() {
-    if (userId == null) return Stream.value(defaultWallets);
+  Stream<List<WalletModel>> getWallets() {
+    if (userId == null) return const Stream.empty();
 
     return _db
         .collection('users')
         .doc(userId)
+        .collection('wallets')
         .snapshots()
-        .map((doc) {
-      final data = doc.data();
-
-      if (data == null || data['wallets'] == null) {
-        return defaultWallets;
-      }
-
-      final List<String> customWallets =
-      List<String>.from(data['wallets']);
-
-      // Merge old hardcoded wallets with new wallets
-      final mergedWallets = {
-        ...defaultWallets,
-        ...customWallets,
-      }.toList();
-
-      return mergedWallets;
-    });
+        .map(
+          (snapshot) => snapshot.docs
+          .map((doc) => WalletModel.fromFirestore(doc))
+          .toList(),
+    );
   }
 
   // =========================
   // ADD NEW WALLET
   // =========================
-  Future<void> addWallet(String walletName) async {
+  Future<void> addWallet(
+      String walletName,
+      double initialBalance,
+      ) async {
     if (userId == null) return;
 
-    final cleaned = walletName.trim();
+    await _db
+        .collection('users')
+        .doc(userId)
+        .collection('wallets')
+        .add({
+      'name': walletName,
+      'balance': initialBalance,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
 
-    if (cleaned.isEmpty) return;
+  //update wallet
+  Future<void> updateWalletBalance(
+      String walletName,
+      double amount,
+      TransactionType type,
+      ) async {
+    if (userId == null) return;
 
-    await _db.collection('users').doc(userId).set({
-      'wallets': FieldValue.arrayUnion([cleaned])
-    }, SetOptions(merge: true));
+    final walletSnapshot = await _db
+        .collection('users')
+        .doc(userId)
+        .collection('wallets')
+        .where('name', isEqualTo: walletName)
+        .get();
+
+    if (walletSnapshot.docs.isEmpty) return;
+
+    final walletDoc = walletSnapshot.docs.first;
+
+    final currentBalance =
+    (walletDoc['balance'] as num).toDouble();
+
+    double updatedBalance = currentBalance;
+
+    if (type == TransactionType.income) {
+      updatedBalance += amount;
+    } else if (type == TransactionType.expense) {
+      updatedBalance -= amount;
+    }
+
+    await walletDoc.reference.update({
+      'balance': updatedBalance,
+    });
+  }
+
+  Future<void> transferBetweenWallets({
+    required String fromWallet,
+    required String toWallet,
+    required double amount,
+  }) async {
+    if (userId == null) return;
+
+    final walletCollection = _db
+        .collection('users')
+        .doc(userId)
+        .collection('wallets');
+
+    final fromSnapshot =
+    await walletCollection
+        .where('name', isEqualTo: fromWallet)
+        .get();
+
+    final toSnapshot =
+    await walletCollection
+        .where('name', isEqualTo: toWallet)
+        .get();
+
+    if (fromSnapshot.docs.isEmpty ||
+        toSnapshot.docs.isEmpty) {
+      return;
+    }
+
+    final fromDoc = fromSnapshot.docs.first;
+    final toDoc = toSnapshot.docs.first;
+
+    final fromBalance =
+    (fromDoc['balance'] as num).toDouble();
+
+    final toBalance =
+    (toDoc['balance'] as num).toDouble();
+
+    await fromDoc.reference.update({
+      'balance': fromBalance - amount,
+    });
+
+    await toDoc.reference.update({
+      'balance': toBalance + amount,
+    });
+  }
+
+  Future<void> reverseWalletBalance(
+      TransactionModel transaction,
+      ) async {
+
+    if (userId == null) return;
+
+    if (transaction.type == TransactionType.transfer) {
+
+      await transferBetweenWallets(
+        fromWallet: transaction.toWallet!,
+        toWallet: transaction.wallet,
+        amount: transaction.amount,
+      );
+
+      return;
+    }
+
+    final walletSnapshot = await _db
+        .collection('users')
+        .doc(userId)
+        .collection('wallets')
+        .where('name', isEqualTo: transaction.wallet)
+        .get();
+
+    if (walletSnapshot.docs.isEmpty) return;
+
+    final walletDoc = walletSnapshot.docs.first;
+
+    final currentBalance =
+    (walletDoc['balance'] as num).toDouble();
+
+    double updatedBalance = currentBalance;
+
+    if (transaction.type == TransactionType.expense) {
+
+      updatedBalance += transaction.amount;
+
+    } else if (transaction.type == TransactionType.income) {
+
+      updatedBalance -= transaction.amount;
+    }
+
+    await walletDoc.reference.update({
+      'balance': updatedBalance,
+    });
   }
 }

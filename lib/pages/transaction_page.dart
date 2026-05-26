@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:khorcha/models/wallet_model.dart';
 import 'package:khorcha/widgets/guilt_meter.dart';
 
 import '../models/transactions.dart';
@@ -33,8 +34,10 @@ class _TransactionPageState extends State<TransactionPage> {
 
   String _selectedWallet = 'Cash';
   String _toWallet = 'Metro Card'; // <-- NEW: For transfers
-  List<String> _wallets = [];
+  List<WalletModel> _wallets = [];
   StreamSubscription? _walletSubscription;
+
+  bool _isSaving = false;
 
   void _listenToWallets() {
     _walletSubscription = FirestoreService()
@@ -44,12 +47,15 @@ class _TransactionPageState extends State<TransactionPage> {
       setState(() {
         _wallets = wallets;
 
-        if (!_wallets.contains(_selectedWallet)) {
-          _selectedWallet = _wallets.first;
+        final walletNames =
+        wallets.map((e) => e.name).toList();
+
+        if (!walletNames.contains(_selectedWallet)) {
+          _selectedWallet = walletNames.first;
         }
 
-        if (!_wallets.contains(_toWallet)) {
-          _toWallet = _wallets.first;
+        if (!walletNames.contains(_toWallet)) {
+          _toWallet = walletNames.first;
         }
       });
     });
@@ -297,7 +303,7 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
-  void _saveTransaction() async {
+  Future<void> _saveTransaction() async {
     bool isTransfer = _selectedType == 'Transfer';
 
     if (isTransfer) {
@@ -335,9 +341,55 @@ class _TransactionPageState extends State<TransactionPage> {
       );
 
       if (widget.transactionToEdit != null) {
-        await firestoreService.updateTransaction(transaction);
+
+        // REVERSE OLD TRANSACTION EFFECT
+        await firestoreService.reverseWalletBalance(
+          widget.transactionToEdit!,
+        );
+
+        // UPDATE TRANSACTION
+        await firestoreService.updateTransaction(
+          transaction,
+        );
+
+        // APPLY NEW EFFECT
+        if (tType == TransactionType.transfer) {
+
+          await firestoreService.transferBetweenWallets(
+            fromWallet: _selectedWallet,
+            toWallet: _toWallet,
+            amount: transaction.amount,
+          );
+
+        } else {
+
+          await firestoreService.updateWalletBalance(
+            _selectedWallet,
+            transaction.amount,
+            tType,
+          );
+        }
+
       } else {
+
         await firestoreService.addTransaction(transaction);
+
+        if (tType == TransactionType.transfer) {
+
+          await firestoreService.transferBetweenWallets(
+            fromWallet: _selectedWallet,
+            toWallet: _toWallet,
+            amount: transaction.amount,
+          );
+
+        } else {
+
+          await firestoreService.updateWalletBalance(
+            _selectedWallet,
+            transaction.amount,
+            tType,
+          );
+        }
       }
 
       if (mounted) Navigator.pop(context);
@@ -350,6 +402,7 @@ class _TransactionPageState extends State<TransactionPage> {
 
   void _showAddWalletDialog() {
     final controller = TextEditingController();
+    final balanceController = TextEditingController();
 
     showDialog(
       context: context,
@@ -362,17 +415,40 @@ class _TransactionPageState extends State<TransactionPage> {
             'Create Wallet',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: 'Wallet name',
-              filled: true,
-              fillColor: const Color(0xFFF4F7F6),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: 'Wallet name',
+                  filled: true,
+                  fillColor: const Color(0xFFF4F7F6),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
-            ),
+
+              const SizedBox(height: 15),
+
+              TextField(
+                controller: balanceController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Initial balance',
+                  filled: true,
+                  fillColor: const Color(0xFFF4F7F6),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+            ],
           ),
           actions: [
             TextButton(
@@ -385,7 +461,7 @@ class _TransactionPageState extends State<TransactionPage> {
 
                 if (walletName.isEmpty) return;
 
-                if (_wallets.contains(walletName)) {
+                if (_wallets.map((e) => e.name).toList().contains(walletName)) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Wallet already exists'),
@@ -394,7 +470,10 @@ class _TransactionPageState extends State<TransactionPage> {
                   return;
                 }
 
-                await FirestoreService().addWallet(walletName);
+                await FirestoreService().addWallet(
+                  walletName,
+                  double.tryParse(balanceController.text) ?? 0,
+                );
 
                 if (!mounted) return;
 
@@ -446,7 +525,7 @@ class _TransactionPageState extends State<TransactionPage> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Row(
-            children: _wallets.map((wallet) {
+            children: _wallets.map((e) => e.name).toList().map((wallet) {
               bool isSelected = currentValue == wallet;
               return GestureDetector(
                 onTap: () => onChanged(wallet),
@@ -503,10 +582,10 @@ class _TransactionPageState extends State<TransactionPage> {
               onTap: () => _amountFocusNode.requestFocus(),
               behavior: HitTestBehavior.opaque,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                 child: Column(
                   children: [
-                    const Text("How much?", style: TextStyle(color: Colors.white70, fontSize: 16)),
+                    const Text("Amount", style: TextStyle(color: Colors.white70, fontSize: 16)),
                     const SizedBox(height: 10),
                     IntrinsicWidth(
                       child: TextFormField(
@@ -699,14 +778,64 @@ class _TransactionPageState extends State<TransactionPage> {
                               width: double.infinity,
                               height: 55,
                               child: ElevatedButton(
-                                onPressed: _saveTransaction,
+                                onPressed: _isSaving
+                                    ? null
+                                    : () async {
+
+                                  setState(() {
+                                    _isSaving = true;
+                                  });
+
+                                  try {
+                                    await _saveTransaction();
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _isSaving = false;
+                                      });
+                                    }
+                                  }
+                                },
+
                                 style: ElevatedButton.styleFrom(
+                                  disabledBackgroundColor:
+                                  const Color(0xFF03624C).withOpacity(0.7),
+
                                   backgroundColor: const Color(0xFF03624C),
+
                                   elevation: 5,
-                                  shadowColor: const Color(0xFF03624C).withOpacity(0.4),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+
+                                  shadowColor:
+                                  const Color(0xFF03624C).withOpacity(0.4),
+
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
                                 ),
-                                child: Text(isEditing ? "Update Transaction" : "Save Transaction", style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+
+                                child: _isSaving
+                                    ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    valueColor:
+                                    AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                    : Text(
+                                  isEditing
+                                      ? "Update Transaction"
+                                      : "Save Transaction",
+
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 20),
