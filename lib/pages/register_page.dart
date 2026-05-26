@@ -56,6 +56,29 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       await userCredential.user!.reload();
 
+      // Default Categories
+      final List<String> defaultIncomeCategories = [
+        'Salary',
+        'Business',
+        'Investments',
+        'Gifts',
+        'Rental',
+        'Other',
+      ];
+
+      final List<String> defaultExpenseCategories = [
+        'Food',
+        'Housing',
+        'Transport',
+        'Health',
+        'Travel',
+        'Shopping',
+        'Entertainment',
+        'Education',
+        'Finance',
+        'Miscellaneous',
+      ];
+
       // 4. Create Firestore Document (added a default budget of 0 for new users)
       await FirebaseFirestore.instance
           .collection('users')
@@ -70,6 +93,11 @@ class _RegisterPageState extends State<RegisterPage> {
           'Bank',
           'Metro Card',
         ],
+
+        // NEW
+        'incomeCategories': defaultIncomeCategories,
+        'expenseCategories': defaultExpenseCategories,
+
         'createdAt': FieldValue.serverTimestamp(),
       });
 
