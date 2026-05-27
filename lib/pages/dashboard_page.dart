@@ -29,6 +29,9 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isLoadingBudget = true;
   bool _hasAlerted = false;
 
+  String? walletNameError;
+  String? balanceError;
+
   void _showAddWalletDialog() {
     final controller = TextEditingController();
     final balanceController = TextEditingController();
@@ -36,198 +39,158 @@ class _DashboardPageState extends State<DashboardPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-          contentPadding: EdgeInsets.zero,
-          content: Container(
-            padding: const EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              color: Colors.white,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
 
-                // TOP ICON
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF03624C).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_wallet_rounded,
-                    color: Color(0xFF03624C),
-                    size: 32,
-                  ),
+        String? walletNameError;
+        String? balanceError;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
+              contentPadding: EdgeInsets.zero,
+              content: Container(
+                padding: const EdgeInsets.all(25),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  color: Colors.white,
                 ),
-
-                const SizedBox(height: 18),
-
-                // TITLE
-                const Text(
-                  'Create Wallet',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black87,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  'Add a wallet with an initial balance',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 28),
-
-                // WALLET NAME FIELD
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F7F6),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      icon: Icon(
-                        Icons.wallet_rounded,
-                        color: Color(0xFF03624C),
-                      ),
-                      prefixText: "  ",
-                      hintText: 'Wallet name',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                // BALANCE FIELD
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F7F6),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: TextField(
-                    controller: balanceController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      icon: Icon(
-                        Icons.currency_exchange_rounded,
-                        color: Color(0xFF03624C),
-                      ),
-                      prefixText: "৳ ",
-                      hintText: 'Initial balance',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // BUTTONS
-                Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
 
-                    // CANCEL
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: Colors.grey[100],
-                          foregroundColor: Colors.black87,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                    // WALLET NAME FIELD
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF4F7F6),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: TextField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          icon: const Icon(
+                            Icons.wallet_rounded,
+                            color: Color(0xFF03624C),
                           ),
-                        ),
-                        child: const Text(
-                          'Cancel',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          prefixText: "  ",
+                          hintText: 'Wallet name',
+                          border: InputBorder.none,
+                          errorText: walletNameError,
                         ),
                       ),
                     ),
 
-                    const SizedBox(width: 15),
+                    const SizedBox(height: 18),
 
-                    // CREATE
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-
-                          final walletName =
-                          controller.text.trim();
-
-                          if (walletName.isEmpty) return;
-
-                          await FirestoreService().addWallet(
-                            walletName,
-                            double.tryParse(
-                              balanceController.text,
-                            ) ?? 0,
-                          );
-
-                          if (!mounted) return;
-
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '$walletName added successfully',
-                              ),
-                              backgroundColor:
-                              const Color(0xFF03624C),
-                              behavior:
-                              SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor:
-                          const Color(0xFF03624C),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
+                    // BALANCE FIELD
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF4F7F6),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: TextField(
+                        controller: balanceController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          icon: const Icon(
+                            Icons.currency_exchange_rounded,
+                            color: Color(0xFF03624C),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(18),
-                          ),
-                        ),
-                        child: const Text(
-                          'Create',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          prefixText: "৳ ",
+                          hintText: 'Initial balance',
+                          border: InputBorder.none,
+                          errorText: balanceError,
                         ),
                       ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    Row(
+                      children: [
+
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+
+                        const SizedBox(width: 15),
+
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+
+                              final walletName =
+                              controller.text.trim();
+
+                              final initialBalance =
+                              double.tryParse(
+                                balanceController.text,
+                              );
+
+                              setDialogState(() {
+
+                                walletNameError = null;
+                                balanceError = null;
+
+                                if (walletName.isEmpty) {
+                                  walletNameError =
+                                  'Wallet name cannot be empty';
+                                }
+
+                                if (initialBalance == null) {
+                                  balanceError =
+                                  'Invalid balance';
+                                }
+                                else if (initialBalance < 0) {
+                                  balanceError =
+                                  'Invalid balance';
+                                }
+                              });
+
+                              if (walletNameError != null ||
+                                  balanceError != null) {
+                                return;
+                              }
+
+                              await FirestoreService().addWallet(
+                                walletName,
+                                initialBalance!,
+                              );
+
+                              if (!mounted) return;
+
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '$walletName added successfully',
+                                  ),
+                                  backgroundColor:
+                                  const Color(0xFF03624C),
+                                ),
+                              );
+                            },
+                            child: const Text('Create'),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
