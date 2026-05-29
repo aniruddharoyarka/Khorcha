@@ -65,13 +65,15 @@ It analyzes:
 ## Login/Register
 
 <p align="center">
-  <img width="400" height="300" alt="Login" src="https://github.com/user-attachments/assets/89d39b19-56f0-4098-83be-1101dce26397" />
+  <img width="1080" height="2400" alt="Screenshot_20260529_164555" src="https://github.com/user-attachments/assets/840e4b2e-cbbc-4e4b-b238-ebd9a453932c" />
+  <img width="1080" height="2400" alt="Screenshot_20260529_164605" src="https://github.com/user-attachments/assets/8a26cf70-e5bb-4ac3-b7eb-a63555da115d" />
+
 </p>
 
 ## Dashboard
 
 <p align="center">
-  <img src="screenshots/dashboard.png" width="250"/>
+  
 </p>
 
 ## Statistics & Analytics
@@ -80,7 +82,7 @@ It analyzes:
   <img src="screenshots/statistics.png" width="250"/>
 </p>
 
-## Daily Expense Trend
+## Daily Expense Trend & Category-wise Expense Breakdown
 
 <p align="center">
   <img src="screenshots/trend_graph.png" width="250"/>
