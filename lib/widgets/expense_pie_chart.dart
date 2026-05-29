@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:khorcha/models/transactions.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ExpensePieChart extends StatelessWidget {
   final List<TransactionModel> transactions;
   final DateTime selectedMonth;
+  final String selectedChart;
+  final Function(String?) onChartChanged;
 
   const ExpensePieChart({
     super.key,
     required this.transactions,
-    required this.selectedMonth
+    required this.selectedMonth,
+    required this.selectedChart,
+    required this.onChartChanged,
   });
 
   @override
@@ -67,15 +72,85 @@ class ExpensePieChart extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Header
-          const Text(
-              'Expense Breakdown',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black87)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+
+                        value: selectedChart,
+
+                        isDense: true,
+
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 22,
+                          color: Colors.black87,
+                        ),
+
+                        borderRadius: BorderRadius.circular(16),
+
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
+                        ),
+
+                        items: [
+
+                          DropdownMenuItem(
+                            value: 'Category Breakdown',
+                            child: Text(
+                              'Expense Breakdown',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+
+                          DropdownMenuItem(
+                            value: 'Daily Expense Trend',
+                            child: Text(
+                              'Daily Expense Trend',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        onChanged: onChartChanged,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+
+                      selectedChart == 'Category Breakdown'
+                          ? 'Category wise spending'
+                          : 'Grouped every 3 days',
+
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          const Text(
-              'Category wise spending',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.black54)
-          ),
+
+          const SizedBox(height: 30),
+
           const SizedBox(height: 35),
 
           // 1. Bigger Pie Chart

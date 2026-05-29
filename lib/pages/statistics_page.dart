@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:khorcha/widgets/daily_expense_chart.dart';
 import 'package:khorcha/widgets/expense_pie_chart.dart';
 import 'package:khorcha/models/transactions.dart';
 import 'package:khorcha/widgets/monthly_summary_card.dart';
@@ -44,6 +45,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
           t.date.month == currentMonth.month;
     }).toList();
   }
+
+  String selectedChart = 'Category Breakdown';
 
   // --- NEW BEHAVIORAL ALGORITHM ---
   Map<String, dynamic> _calculateCategoryGuilt(List<TransactionModel> transactions) {
@@ -133,9 +136,34 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ),
             const SizedBox(height: 20),
 
-            ExpensePieChart(
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+
+              child: selectedChart == 'Category Breakdown'
+
+                  ? ExpensePieChart(
+                key: const ValueKey('pie'),
                 transactions: filteredTransactions,
-                selectedMonth: currentMonth
+                selectedMonth: currentMonth,
+                selectedChart: selectedChart,
+                onChartChanged: (value) {
+                  setState(() {
+                    selectedChart = value!;
+                  });
+                },
+              )
+
+                  : DailyExpenseChart(
+                key: const ValueKey('daily'),
+                transactions: filteredTransactions,
+                selectedMonth: currentMonth,
+                selectedChart: selectedChart,
+                onChartChanged: (value) {
+                  setState(() {
+                    selectedChart = value!;
+                  });
+                },
+              )
             ),
             const SizedBox(height: 20),
 
