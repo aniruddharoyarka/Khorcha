@@ -193,8 +193,15 @@ The goal is to help users become more mindful about their money habits.
 
 ---
 
-# 👨‍💻 Developer
+# 👨‍💻 Developers
 
-Built with ❤️ using Flutter & Firebase.
+Aniruddha Roy Arka
+GitHub: https://github.com/aniruddharoyarka
+LinkedIn: https://www.linkedin.com/in/aniruddharka/
+Ushriba Rahman
+GitHub: https://github.com/ushribarahman
+LinkedIn: https://www.linkedin.com/in/ushriba-rahman-468761313/
+
+Built with Flutter & Firebase.
 
 If you like this project, consider giving it a ⭐ on GitHub!
