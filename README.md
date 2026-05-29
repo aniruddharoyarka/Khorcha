@@ -1,4 +1,4 @@
-# Khorcha 💸
+# Khorcha 
 
 A modern Flutter expense tracker focused on **behavioral finance**, smart spending insights, and beautiful analytics.
 
@@ -14,9 +14,9 @@ A modern Flutter expense tracker focused on **behavioral finance**, smart spendi
 
 ---
 
-# ✨ Features
+# Features
 
-## 📊 Smart Expense Analytics
+## Smart Expense Analytics
 
 * Category-wise expense breakdown
 * Interactive pie charts
@@ -24,14 +24,14 @@ A modern Flutter expense tracker focused on **behavioral finance**, smart spendi
 * Monthly financial summaries
 * Spending behavior analysis
 
-## 💰 Wallet Management
+## Wallet Management
 
 * Multiple wallet support
 * Cash / Bank / bKash / Metro Card
 * Real-time balance tracking
 * Wallet-to-wallet transfers
 
-## 🧠 Behavioral Finance
+## Behavioral Finance
 
 Khorcha goes beyond traditional expense tracking by analyzing:
 
@@ -41,14 +41,14 @@ Khorcha goes beyond traditional expense tracking by analyzing:
 * category trends
 * spending psychology
 
-## 🔄 Subscription Tracking
+## Subscription Tracking
 
 * Recurring payment management
 * Upcoming payment reminders
 * Billing cycle support
 * Mark subscriptions as paid
 
-## 📱 Modern UI
+## Modern UI
 
 * Material 3 design
 * Smooth animations
@@ -58,7 +58,7 @@ Khorcha goes beyond traditional expense tracking by analyzing:
 
 ---
 
-# 📸 Screenshots
+# Screenshots
 
 ## Authentication
 
@@ -128,7 +128,7 @@ Khorcha goes beyond traditional expense tracking by analyzing:
 
 ---
 
-# 🚀 Getting Started
+# Getting Started
 
 ## Prerequisites
 
@@ -165,7 +165,7 @@ ios/Runner/GoogleService-Info.plist
 
 ---
 
-# 📈 Behavioral Insights System
+# Behavioral Insights System
 
 Khorcha introduces a behavioral finance approach to expense tracking.
 
@@ -181,7 +181,7 @@ The goal is to help users become more mindful about their money habits.
 
 ---
 
-# 🎯 Future Plans
+# Future Plans
 
 * AI-powered financial insights
 * Smart budgeting assistant
@@ -193,7 +193,7 @@ The goal is to help users become more mindful about their money habits.
 
 ---
 
-# 👨‍💻 Developers
+# Developers
 
 ### Aniruddha Roy Arka
 
