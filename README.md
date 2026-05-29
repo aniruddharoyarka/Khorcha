@@ -195,12 +195,15 @@ The goal is to help users become more mindful about their money habits.
 
 # 👨‍💻 Developers
 
-Aniruddha Roy Arka
-GitHub: https://github.com/aniruddharoyarka
-LinkedIn: https://www.linkedin.com/in/aniruddharka/
-Ushriba Rahman
-GitHub: https://github.com/ushribarahman
-LinkedIn: https://www.linkedin.com/in/ushriba-rahman-468761313/
+### Aniruddha Roy Arka
+
+* GitHub: https://github.com/aniruddharoyarka
+* LinkedIn: https://www.linkedin.com/in/aniruddharka/
+
+### Ushriba Rahman
+
+* GitHub: https://github.com/ushribarahman
+* LinkedIn: https://www.linkedin.com/in/ushriba-rahman-468761313/
 
 Built with Flutter & Firebase.
 
