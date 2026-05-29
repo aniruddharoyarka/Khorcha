@@ -3,7 +3,7 @@
 A modern Flutter expense tracker focused on **behavioral finance**, smart spending insights, and beautiful analytics.
 
 <p align="center">
-  <img src="screenshots/banner.png" width="100%" alt="Khorcha Banner"/>
+  <img width="1013" height="1013" alt="logo" src="https://github.com/user-attachments/assets/539b8a95-c4de-4074-8c74-67222b293aab" />
 </p>
 
 ---
