@@ -62,6 +62,12 @@ It analyzes:
 
 # 📸 Screenshots
 
+## Login/Register
+
+<p align="center">
+  <img width="400" height="300" alt="Login" src="https://github.com/user-attachments/assets/89d39b19-56f0-4098-83be-1101dce26397" />
+</p>
+
 ## Dashboard
 
 <p align="center">
