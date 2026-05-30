@@ -33,7 +33,7 @@ class _TransactionPageState extends State<TransactionPage> {
   DateTime? _selectedDate = DateTime.now();
 
   String _selectedWallet = 'Cash';
-  String _toWallet = 'Metro Card'; // <-- NEW: For transfers
+  String _toWallet = 'Metro Card';
   List<WalletModel> _wallets = [];
   StreamSubscription? _walletSubscription;
 
@@ -152,21 +152,18 @@ class _TransactionPageState extends State<TransactionPage> {
 
         final data = doc.data()!;
 
-        // NEW SYSTEM
         List<String> incomeCats =
         List<String>.from(data['incomeCategories'] ?? []);
 
         List<String> expenseCats =
         List<String>.from(data['expenseCategories'] ?? []);
 
-        // OLD SYSTEM (BACKWARD COMPATIBILITY)
         List<String> oldIncome =
         List<String>.from(data['customIncomeCategories'] ?? []);
 
         List<String> oldExpense =
         List<String>.from(data['customExpenseCategories'] ?? []);
 
-        // MERGE EVERYTHING
         final mergedIncome = {
           ...incomeCats,
           ...oldIncome,
@@ -189,7 +186,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
         });
 
-        // AUTO MIGRATION
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
@@ -200,7 +196,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
         }, SetOptions(merge: true));
 
-        // DROPDOWN SAFETY
         final currentList =
         _selectedType == 'Income'
             ? _incomeCategories
@@ -313,7 +308,7 @@ class _TransactionPageState extends State<TransactionPage> {
         );
         return;
       }
-      _selectedCategory = 'Transfer'; // Bypass validation
+      _selectedCategory = 'Transfer';
     }
 
     if (_formKey.currentState!.validate() && _selectedDate != null) {
@@ -342,17 +337,14 @@ class _TransactionPageState extends State<TransactionPage> {
 
       if (widget.transactionToEdit != null) {
 
-        // REVERSE OLD TRANSACTION EFFECT
         await firestoreService.reverseWalletBalance(
           widget.transactionToEdit!,
         );
 
-        // UPDATE TRANSACTION
         await firestoreService.updateTransaction(
           transaction,
         );
 
-        // APPLY NEW EFFECT
         if (tType == TransactionType.transfer) {
 
           await firestoreService.transferBetweenWallets(
@@ -400,106 +392,6 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
-  void _showAddWalletDialog() {
-    final controller = TextEditingController();
-    final balanceController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Text(
-            'Create Wallet',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: 'Wallet name',
-                  filled: true,
-                  fillColor: const Color(0xFFF4F7F6),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              TextField(
-                controller: balanceController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'Initial balance',
-                  filled: true,
-                  fillColor: const Color(0xFFF4F7F6),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final walletName = controller.text.trim();
-
-                if (walletName.isEmpty) return;
-
-                if (_wallets.map((e) => e.name).toList().contains(walletName)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Wallet already exists'),
-                    ),
-                  );
-                  return;
-                }
-
-                await FirestoreService().addWallet(
-                  walletName,
-                  double.tryParse(balanceController.text) ?? 0,
-                );
-
-                if (!mounted) return;
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$walletName added successfully'),
-                    backgroundColor: const Color(0xFF03624C),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF03624C),
-              ),
-              child: const Text(
-                'Create',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void dispose() {
     _titleController.dispose();
@@ -511,7 +403,6 @@ class _TransactionPageState extends State<TransactionPage> {
     super.dispose();
   }
 
-  // Helper widget to build the horizontal scrollable wallet chips
   Widget _buildWalletSelector(String title, String currentValue, ValueChanged<String> onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +468,6 @@ class _TransactionPageState extends State<TransactionPage> {
         key: _formKey,
         child: Column(
           children: [
-            // Top Amount Section
             GestureDetector(
               onTap: () => _amountFocusNode.requestFocus(),
               behavior: HitTestBehavior.opaque,
@@ -609,7 +499,6 @@ class _TransactionPageState extends State<TransactionPage> {
               ),
             ),
 
-            // Bottom White Card
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -621,7 +510,6 @@ class _TransactionPageState extends State<TransactionPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- UPDATED: 3-WAY TOGGLE ---
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 25),
                         child: Container(
@@ -638,7 +526,6 @@ class _TransactionPageState extends State<TransactionPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      // --- DYNAMIC WALLET SELECTORS ---
                       if (isTransfer) ...[
                         _buildWalletSelector("From Wallet", _selectedWallet, (w) => setState(() => _selectedWallet = w)),
                         const SizedBox(height: 15),
@@ -664,7 +551,6 @@ class _TransactionPageState extends State<TransactionPage> {
                             ),
                             const SizedBox(height: 15),
 
-                            // ONLY SHOW CATEGORY IF NOT A TRANSFER
                             if (!isTransfer) ...[
                               _buildModernInput(
                                 icon: Icons.folder_open,
@@ -720,7 +606,6 @@ class _TransactionPageState extends State<TransactionPage> {
                               ),
                             ),
 
-                            // ONLY SHOW SUBSCRIPTION IF EXPENSE
                             if (_selectedType == 'Expense') ...[
                               const SizedBox(height: 15),
                               Container(
@@ -764,7 +649,6 @@ class _TransactionPageState extends State<TransactionPage> {
                               ]
                             ],
 
-                            // ONLY SHOW GUILT IF EXPENSE
                             if (_selectedType == 'Expense') ...[
                               const SizedBox(height: 25),
                               GuiltMeter(
@@ -866,7 +750,6 @@ class _TransactionPageState extends State<TransactionPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          // Changed: Selected background is now the app's green
           color: isSelected ? const Color(0xFF03624C) : Colors.transparent,
           borderRadius: BorderRadius.circular(15),
           boxShadow: isSelected
@@ -877,7 +760,6 @@ class _TransactionPageState extends State<TransactionPage> {
         child: Text(
           type,
           style: TextStyle(
-            // Changed: Selected text is now white
               color: isSelected ? Colors.white : Colors.grey[500],
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               fontSize: 13

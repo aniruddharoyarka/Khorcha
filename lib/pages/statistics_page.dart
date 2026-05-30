@@ -48,7 +48,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   String selectedChart = 'Category Breakdown';
 
-  // --- NEW BEHAVIORAL ALGORITHM ---
   Map<String, dynamic> _calculateCategoryGuilt(List<TransactionModel> transactions) {
     final expenses = transactions.where((t) => t.type == TransactionType.expense).toList();
     if (expenses.isEmpty) return {'hasData': false};
@@ -98,7 +97,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
     double guiltPercentage = _calculateGuiltPercentage(filteredTransactions);
 
-    // Fetch the new behavioral data
     Map<String, dynamic> guiltInsights = _calculateCategoryGuilt(filteredTransactions);
 
     for (var t in filteredTransactions) {
@@ -193,7 +191,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
             _buildSentimentCard(guiltPercentage),
             const SizedBox(height: 20),
 
-            // --- NEW BEHAVIORAL INSIGHTS UI ---
             _buildGuiltInsightsCard(guiltInsights),
 
             const SizedBox(height: 30),
@@ -312,7 +309,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  // --- NEW BEHAVIORAL INSIGHTS WIDGET ---
   Widget _buildGuiltInsightsCard(Map<String, dynamic> guiltData) {
     if (guiltData['hasData'] != true) return const SizedBox();
 
@@ -356,7 +352,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  // Row builder for the Behavioral Insights Card
   Widget _buildInsightRow({required String title, required String category, required double guiltValue, required bool isPositive}) {
     final Color color = isPositive ? const Color(0xFF03624C) : Colors.redAccent;
     final IconData icon = isPositive ? Icons.sentiment_very_satisfied_rounded : Icons.sentiment_very_dissatisfied_rounded;

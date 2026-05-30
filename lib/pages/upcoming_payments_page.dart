@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:khorcha/models/transactions.dart';
-import 'package:khorcha/widgets/recent_transactions_card.dart';
 import 'package:khorcha/widgets/upcoming_payment_card.dart';
 
 class UpcomingPaymentsPage extends StatelessWidget {
@@ -11,7 +10,7 @@ class UpcomingPaymentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F6), // Unified background
+      backgroundColor: const Color(0xFFF4F7F6),
       appBar: AppBar(
         title: const Text("Upcoming Payments", style: TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: true,
@@ -22,8 +21,8 @@ class UpcomingPaymentsPage extends StatelessWidget {
       body: payments.isEmpty
           ? _buildEmptyState()
           : ListView.builder(
-        physics: const BouncingScrollPhysics(), // Smoother scrolling feel
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Prevents cards from touching screen edges
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         itemCount: payments.length,
         itemBuilder: (context, index) {
           return UpcomingPaymentCard(payment: payments[index]);
@@ -32,7 +31,6 @@ class UpcomingPaymentsPage extends StatelessWidget {
     );
   }
 
-  // Redesigned empty state to match modern aesthetic
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
