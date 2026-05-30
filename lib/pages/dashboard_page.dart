@@ -11,7 +11,6 @@ import 'package:khorcha/widgets/recent_transactions_card.dart';
 import 'package:khorcha/widgets/section_title.dart';
 import 'package:khorcha/widgets/upcoming_payment_card.dart';
 import 'package:khorcha/models/transactions.dart';
-
 import 'all_transactions_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -155,7 +154,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
 
-                    // TOP ICON
+                    // top icon
                     Container(
                       height: 78,
                       width: 78,
@@ -185,7 +184,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                     const SizedBox(height: 24),
 
-                    // TITLE
+                    // title
                     const Text(
                       "Create Wallet",
                       style: TextStyle(
@@ -235,7 +234,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     // BUTTONS
                     Row(
                       children: [
-
                         // CANCEL
                         Expanded(
                           child: SizedBox(
