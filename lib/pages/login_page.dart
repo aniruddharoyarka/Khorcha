@@ -100,7 +100,6 @@ class _LoginPageState extends State<LoginPage> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Stack(
           children: [
-            // 1. Premium Dark Curved Header with Background Elements
             Container(
               height: size.height * 0.45,
               decoration: const BoxDecoration(
@@ -112,7 +111,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               child: Stack(
                 children: [
-                  // Decorative translucent circle 1
                   Positioned(
                     top: -40,
                     left: -40,
@@ -125,7 +123,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  // Decorative translucent circle 2
                   Positioned(
                     top: 120,
                     right: -30,
@@ -142,7 +139,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
 
-            // 2. Main Foreground Content
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -151,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const SizedBox(height: 30),
 
-                    // Welcome Text Overlay
                     const Text(
                       "Welcome\nBack",
                       style: TextStyle(
@@ -174,7 +169,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 40),
 
-                    // 3. Floating Login Card
                     Container(
                       padding: const EdgeInsets.all(30),
                       decoration: BoxDecoration(
@@ -190,11 +184,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: Column(
                         children: [
-                          // App Logo inside the card
                           Image.asset('assets/logo.png', height: 60),
                           const SizedBox(height: 35),
 
-                          // Sophisticated Email Input
                           _buildTextField(
                             controller: _emailController,
                             label: "Email Address",
@@ -203,7 +195,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Sophisticated Password Input
                           _buildTextField(
                             controller: _passwordController,
                             label: "Password",
@@ -213,7 +204,6 @@ class _LoginPageState extends State<LoginPage> {
 
                           const SizedBox(height: 15),
 
-                          // Forget Password
                           Align(
                             alignment: Alignment.centerRight,
                             child: GestureDetector(
@@ -234,7 +224,6 @@ class _LoginPageState extends State<LoginPage> {
 
                           const SizedBox(height: 30),
 
-                          // Glowing Gradient Login Button
                           Container(
                             width: double.infinity,
                             height: 60,
@@ -292,7 +281,6 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 40),
 
-                    // Elegant Create Account Text
                     Center(
                       child: GestureDetector(
                         onTap: () {
@@ -330,7 +318,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Custom polished TextField builder
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
