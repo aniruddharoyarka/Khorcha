@@ -199,7 +199,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Stack(
           children: [
-            // 1. Premium Dark Curved Header
+            // header
             Container(
               height: size.height * 0.35,
               decoration: const BoxDecoration(
@@ -235,7 +235,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                     ),
                   ),
-                  // App Bar / Title
+                  // App Bar
                   SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -252,7 +252,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
                             ),
                           ),
-                          const SizedBox(width: 48), // To balance the back button
+                          const SizedBox(width: 48),
                         ],
                       ),
                     ),
@@ -292,7 +292,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                     const SizedBox(height: 30),
 
-                    // Section 1: Profile Info Card
+                    // Profile Info Card
                     _buildSectionCard(
                       title: "Personal Information",
                       children: [
@@ -324,7 +324,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                     const SizedBox(height: 25),
 
-                    // Section 2: Password Card
+                    // Password Card
                     _buildSectionCard(
                       title: "Security",
                       children: [
@@ -366,7 +366,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                     const SizedBox(height: 35),
 
-                    // Glowing Save Button
+                    //  Save Button
                     Container(
                       width: double.infinity,
                       height: 60,
@@ -429,7 +429,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // Polished Floating Card wrapper
   Widget _buildSectionCard({required String title, required List<Widget> children}) {
     return Container(
       width: double.infinity,
@@ -459,7 +458,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // Premium Custom TextField
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -493,7 +491,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // Premium Custom Password Field
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String label,
