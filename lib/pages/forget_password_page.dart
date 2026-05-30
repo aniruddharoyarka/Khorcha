@@ -89,7 +89,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Stack(
           children: [
-            // 1. Premium Dark Curved Header with Background Elements
+
             Container(
               height: size.height * 0.45,
               decoration: const BoxDecoration(
@@ -138,7 +138,6 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
               ),
             ),
 
-            // 2. Main Foreground Content
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -207,7 +206,6 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
 
                           const SizedBox(height: 35),
 
-                          // Glowing Gradient Send Button
                           Container(
                             width: double.infinity,
                             height: 60,
@@ -265,7 +263,6 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
 
                     const SizedBox(height: 40),
 
-                    // Elegant Back to Login Text
                     Center(
                       child: GestureDetector(
                         onTap: () {
@@ -300,7 +297,6 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
     );
   }
 
-  // Custom polished TextField builder
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
