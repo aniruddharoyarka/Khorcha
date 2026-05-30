@@ -29,7 +29,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future signUp() async {
-    // 1. Pre-validation checks
     if (_nameController.text.trim().isEmpty ||
         _emailController.text.trim().isEmpty ||
         _passwordController.text.trim().isEmpty) {
@@ -44,19 +43,19 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
-      // 2. Create User
+      //create user
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // 3. Update Display Name in Auth
+      //name
       await userCredential.user!.updateDisplayName(
         _nameController.text.trim(),
       );
       await userCredential.user!.reload();
 
-      // Default Categories
+      // default Categories
       final List<String> defaultIncomeCategories = [
         'Salary',
         'Business',
@@ -79,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'Miscellaneous',
       ];
 
-      // 4. Create Firestore Document (added a default budget of 0 for new users)
+      // create firestore doc
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -94,14 +93,13 @@ class _RegisterPageState extends State<RegisterPage> {
           'Metro Card',
         ],
 
-        // NEW
         'incomeCategories': defaultIncomeCategories,
         'expenseCategories': defaultExpenseCategories,
 
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // Navigate back to login or let the auth stream handle it
+      // navigate back to login or let the auth stream handle it
       if (mounted) Navigator.pop(context);
 
     } on FirebaseAuthException catch (e) {
@@ -169,7 +167,6 @@ class _RegisterPageState extends State<RegisterPage> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Stack(
           children: [
-            // 1. Premium Dark Curved Header with Background Elements
             Container(
               height: size.height * 0.45,
               decoration: const BoxDecoration(
@@ -205,7 +202,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
-                  // Back button for navigation
                   Positioned(
                     top: 50,
                     left: 15,
@@ -218,16 +214,14 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            // 2. Main Foreground Content
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 50), // Spacing for the back button
+                    const SizedBox(height: 50),
 
-                    // Welcome Text Overlay
                     const Text(
                       "Get\nStarted",
                       style: TextStyle(
@@ -250,7 +244,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 40),
 
-                    // 3. Floating Registration Card
                     Container(
                       padding: const EdgeInsets.all(30),
                       decoration: BoxDecoration(
@@ -266,7 +259,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       child: Column(
                         children: [
-                          // Full Name Input
                           _buildTextField(
                             controller: _nameController,
                             label: "Full Name",
@@ -275,7 +267,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Email Input
                           _buildTextField(
                             controller: _emailController,
                             label: "Email Address",
@@ -284,7 +275,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Password Input
                           _buildPasswordField(
                             controller: _passwordController,
                             label: "Password",
@@ -293,7 +283,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Confirm Password Input
                           _buildPasswordField(
                             controller: _confirmPasswordController,
                             label: "Confirm Password",
@@ -303,7 +292,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 35),
 
-                          // Glowing Gradient Sign Up Button
                           Container(
                             width: double.infinity,
                             height: 60,
@@ -359,11 +347,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 40),
 
-                    // Elegant Sign In Text
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pop(context); // Smoothly glides back to Login Page
+                          Navigator.pop(context);
                         },
                         child: RichText(
                           text: const TextSpan(
@@ -394,7 +381,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // Custom polished TextField builder for standard inputs
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -424,7 +410,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // Custom polished TextField builder specifically for Passwords
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String label,
