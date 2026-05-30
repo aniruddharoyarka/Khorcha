@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum TransactionType { income, expense, transfer } // <-- Added transfer
+enum TransactionType { income, expense, transfer }
 
 class TransactionModel {
   final String id;
@@ -10,14 +10,14 @@ class TransactionModel {
   final String category;
   final TransactionType type;
   final String wallet;
-  final String? toWallet; // <-- NEW: Destination for transfers
+  final String? toWallet;
   final String? note;
   final double guiltValue;
   final DateTime? createdAt;
 
   //Subscription
   final bool isSubscription;
-  final int? billingCycle; //monthwise
+  final int? billingCycle;
   final DateTime? nextPaymentDate;
 
   TransactionModel({
@@ -28,7 +28,7 @@ class TransactionModel {
     required this.category,
     required this.type,
     this.wallet = 'Cash',
-    this.toWallet, // <-- NEW
+    this.toWallet,
     required this.guiltValue,
     this.createdAt,
     this.note,
@@ -72,10 +72,10 @@ class TransactionModel {
       category: data['category'] ?? '',
       type: TransactionType.values.firstWhere(
             (e) => e.name == data['type'],
-        orElse: () => TransactionType.expense, // Fallback safely
+        orElse: () => TransactionType.expense,
       ),
       wallet: data['wallet'] ?? 'Cash',
-      toWallet: data['toWallet'], // <-- NEW
+      toWallet: data['toWallet'],
       guiltValue: (data['guiltValue'] as num?)?.toDouble() ?? 0.0,
       note: data['note'],
       isSubscription: data['isSubscription'] ?? false,
