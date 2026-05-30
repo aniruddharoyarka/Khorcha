@@ -37,7 +37,6 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
       if (t.date.year == widget.currentMonth.year &&
           t.date.month == widget.currentMonth.month) {
 
-        // FIX: Explicitly check the type to avoid transfers being counted as expenses
         if (t.type == TransactionType.income) {
           newIncome += t.amount;
         } else if (t.type == TransactionType.expense) {
@@ -96,7 +95,6 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Month nav
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -115,11 +113,9 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
             ],
           ),
           const SizedBox(height: 15),
-          // Calculated Income-Expense
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Income Block
               Row(
                 children: [
                   Container(
@@ -146,7 +142,6 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
 
               Container(height: 40, width: 1, color: Colors.grey.withOpacity(0.2)),
 
-              // Expense Block
               Row(
                 children: [
                   Container(

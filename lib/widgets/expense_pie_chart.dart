@@ -153,22 +153,21 @@ class ExpensePieChart extends StatelessWidget {
 
           const SizedBox(height: 35),
 
-          // 1. Bigger Pie Chart
           Center(
             child: SizedBox(
-              height: 160, // Increased height for a bigger chart
+              height: 160,
               child: PieChart(
                 PieChartData(
-                  sectionsSpace: 3, // Slightly thicker gaps
-                  centerSpaceRadius: 50, // Larger empty center space
+                  sectionsSpace: 3,
+                  centerSpaceRadius: 50,
                   sections: List.generate(categoryAmounts.length, (index) {
                     final category = categoryAmounts.keys.elementAt(index);
                     final amount = categoryAmounts[category]!;
                     return PieChartSectionData(
                       value: amount,
                       color: pieColors[index % pieColors.length],
-                      radius: 45, // Thicker colored rings
-                      showTitle: false, // Keeps it looking modern and clean
+                      radius: 45,
+                      showTitle: false,
                     );
                   }),
                 ),
@@ -178,7 +177,6 @@ class ExpensePieChart extends StatelessWidget {
 
           const SizedBox(height: 35),
 
-          // 2. Legend & Percentages Below
           Column(
             children: categoryAmounts.entries.map((entry) {
               final index = categoryAmounts.keys.toList().indexOf(entry.key);
@@ -188,7 +186,6 @@ class ExpensePieChart extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Row(
                   children: [
-                    // Colored Square Indicator
                     Container(
                       width: 14,
                       height: 14,
@@ -199,7 +196,6 @@ class ExpensePieChart extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
 
-                    // Category Name
                     Expanded(
                       child: Text(
                         entry.key,
@@ -213,7 +209,6 @@ class ExpensePieChart extends StatelessWidget {
                       ),
                     ),
 
-                    // Percentage and Actual Amount
                     Text(
                       '৳${entry.value.toStringAsFixed(0)} (${percentage.toStringAsFixed(1)}%)',
                       style: const TextStyle(

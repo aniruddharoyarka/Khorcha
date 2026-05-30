@@ -38,7 +38,6 @@ class _BudgetCardState extends State<BudgetCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Title Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -76,7 +75,6 @@ class _BudgetCardState extends State<BudgetCard> {
 
             const SizedBox(height: 20),
 
-            /// Progress Bar
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
@@ -91,7 +89,6 @@ class _BudgetCardState extends State<BudgetCard> {
 
             const SizedBox(height: 15),
 
-            /// Bottom Info Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

@@ -33,7 +33,6 @@ class _BalanceCardState extends State<BalanceCard> {
         ),
         child: Stack(
           children: [
-            // Decorative Background Circles
             Positioned(
               right: -30,
               top: -30,
@@ -51,17 +50,16 @@ class _BalanceCardState extends State<BalanceCard> {
               ),
             ),
 
-            // Content Centered
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(25),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Constrains column to content size
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "This Month's Expense", // <--- Updated wording here
+                      "This Month's Expense",
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withOpacity(0.8),

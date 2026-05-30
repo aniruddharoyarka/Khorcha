@@ -8,9 +8,6 @@ class FirestoreService {
 
   String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
-  // =========================
-  // DEFAULT WALLETS
-  // =========================
   static const List<String> defaultWallets = [
     'Cash',
     'bKash',
@@ -18,9 +15,6 @@ class FirestoreService {
     'Metro Card',
   ];
 
-  // =========================
-  // ADD TX
-  // =========================
   Future<void> addTransaction(TransactionModel tx) async {
     if (userId == null) return;
 
@@ -31,9 +25,7 @@ class FirestoreService {
         .add(tx.toCreateMap());
   }
 
-  // =========================
-  // FETCH TX
-  // =========================
+
   Stream<List<TransactionModel>> getTransactions() {
     if (userId == null) return const Stream.empty();
 
@@ -50,9 +42,7 @@ class FirestoreService {
     );
   }
 
-  // =========================
-  // DELETE TX
-  // =========================
+
   Future<void> deleteTransaction(String transactionId) async {
     await _db
         .collection('users')
@@ -62,9 +52,7 @@ class FirestoreService {
         .delete();
   }
 
-  // =========================
-  // UPDATE TX
-  // =========================
+
   Future<void> updateTransaction(TransactionModel transaction) async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -78,9 +66,7 @@ class FirestoreService {
     }
   }
 
-  // =========================
-  // GET USER WALLETS
-  // =========================
+
   Stream<List<WalletModel>> getWallets() {
     if (userId == null) return const Stream.empty();
 
@@ -96,9 +82,6 @@ class FirestoreService {
     );
   }
 
-  // =========================
-  // ADD NEW WALLET
-  // =========================
   Future<void> addWallet(
       String walletName,
       double initialBalance,

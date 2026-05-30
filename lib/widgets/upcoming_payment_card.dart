@@ -10,9 +10,6 @@ class UpcomingPaymentCard extends StatelessWidget {
 
   const UpcomingPaymentCard({super.key, required this.payment});
 
-  // =========================
-  // MARK AS PAID
-  // =========================
   Future<void> _markSubscriptionAsPaid(BuildContext context, TransactionModel parentSub) async {
     final firestoreService = FirestoreService();
     final today = DateTime.now();
@@ -84,9 +81,6 @@ class UpcomingPaymentCard extends StatelessWidget {
     }
   }
 
-  // =========================
-  // ENABLE BUTTON LOGIC
-  // =========================
   bool _canMarkAsPaid(DateTime? date) {
     if (date == null) return false;
 
@@ -98,9 +92,7 @@ class UpcomingPaymentCard extends StatelessWidget {
     return !todayOnly.isBefore(paymentDateOnly);
   }
 
-  // =========================
-  // SMART DATE TEXT
-  // =========================
+
   String _getDueText(DateTime? date) {
     if (date == null) return "No schedule";
 
@@ -133,9 +125,6 @@ class UpcomingPaymentCard extends StatelessWidget {
     return Colors.green;
   }
 
-  // =========================
-  // BOTTOM SHEET
-  // =========================
   void _showTransactionDetails(BuildContext context, TransactionModel transaction) {
     showModalBottomSheet(
       context: context,
@@ -198,7 +187,6 @@ class UpcomingPaymentCard extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // MARK AS PAID BUTTON (WITH LOGIC)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -341,9 +329,7 @@ class UpcomingPaymentCard extends StatelessWidget {
     );
   }
 
-  // =========================
-  // CARD UI
-  // =========================
+
   @override
   Widget build(BuildContext context) {
     final dueText = _getDueText(payment.nextPaymentDate);

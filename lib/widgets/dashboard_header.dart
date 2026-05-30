@@ -6,14 +6,14 @@ class DashboardHeader extends StatefulWidget {
   final String name;
   final VoidCallback onProfilePressed;
   final VoidCallback onStatisticsPressed;
-  final VoidCallback onCardsPressed; // <-- NEW CALLBACK
+  final VoidCallback onCardsPressed;
 
   const DashboardHeader({
     super.key,
     required this.name,
     required this.onProfilePressed,
     required this.onStatisticsPressed,
-    required this.onCardsPressed, // <-- NEW
+    required this.onCardsPressed,
   });
 
   @override
@@ -45,7 +45,6 @@ class _DashboardHeaderState extends State<DashboardHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Left Side: Greeting & Dynamic Name
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,10 +86,8 @@ class _DashboardHeaderState extends State<DashboardHeader> {
             ),
           ),
 
-          // Right Side: Action Buttons
           Row(
             children: [
-              // 1. NEW Cards/Wallet Button
               GestureDetector(
                 onTap: widget.onCardsPressed,
                 child: Container(
@@ -104,7 +101,6 @@ class _DashboardHeaderState extends State<DashboardHeader> {
               ),
               const SizedBox(width: 10),
 
-              // 3. Profile Avatar
               GestureDetector(
                 onTap: widget.onProfilePressed,
                 child: Container(

@@ -19,20 +19,20 @@ class DailyExpenseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    // ONLY EXPENSES
-    final expenses = transactions.where((t) =>
-    t.type == TransactionType.expense &&
-        t.date.month == selectedMonth.month &&
-        t.date.year == selectedMonth.year
-    ).toList();
+    final expenses = transactions
+        .where(
+          (t) =>
+              t.type == TransactionType.expense &&
+              t.date.month == selectedMonth.month &&
+              t.date.year == selectedMonth.year,
+        )
+        .toList();
 
     final daysInMonth = DateUtils.getDaysInMonth(
       selectedMonth.year,
       selectedMonth.month,
     );
 
-    // DAILY TOTALS
     Map<int, double> dailyTotals = {};
 
     for (int i = 1; i <= daysInMonth; i++) {
@@ -40,41 +40,27 @@ class DailyExpenseChart extends StatelessWidget {
     }
 
     for (var tx in expenses) {
-      dailyTotals[tx.date.day] =
-          (dailyTotals[tx.date.day] ?? 0) + tx.amount;
+      dailyTotals[tx.date.day] = (dailyTotals[tx.date.day] ?? 0) + tx.amount;
     }
 
-    // GROUP EVERY 3 DAYS
     const int groupSize = 3;
 
     List<FlSpot> spots = [];
 
     int pointIndex = 0;
 
-    for (
-    int startDay = 1;
-    startDay <= daysInMonth;
-    startDay += groupSize
-    ) {
-
+    for (int startDay = 1; startDay <= daysInMonth; startDay += groupSize) {
       double total = 0;
 
       for (
-      int day = startDay;
-      day < startDay + groupSize &&
-          day <= daysInMonth;
-      day++
+        int day = startDay;
+        day < startDay + groupSize && day <= daysInMonth;
+        day++
       ) {
-
         total += dailyTotals[day] ?? 0;
       }
 
-      spots.add(
-        FlSpot(
-          pointIndex.toDouble(),
-          total,
-        ),
-      );
+      spots.add(FlSpot(pointIndex.toDouble(), total));
 
       pointIndex++;
     }
@@ -107,20 +93,16 @@ class DailyExpenseChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           // TITLE
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-
                         value: selectedChart,
 
                         isDense: true,
@@ -140,7 +122,6 @@ class DailyExpenseChart extends StatelessWidget {
                         ),
 
                         items: [
-
                           DropdownMenuItem(
                             value: 'Category Breakdown',
                             child: Text(
@@ -169,7 +150,6 @@ class DailyExpenseChart extends StatelessWidget {
                     const SizedBox(height: 4),
 
                     Text(
-
                       selectedChart == 'Category Breakdown'
                           ? 'Category wise spending'
                           : 'Grouped every 3 days',
@@ -196,7 +176,6 @@ class DailyExpenseChart extends StatelessWidget {
 
             child: LineChart(
               LineChartData(
-
                 minX: 0,
                 maxX: (spots.length - 1).toDouble(),
 
@@ -217,13 +196,10 @@ class DailyExpenseChart extends StatelessWidget {
                   },
                 ),
 
-                borderData: FlBorderData(
-                  show: false,
-                ),
+                borderData: FlBorderData(show: false),
 
                 // TITLES
                 titlesData: FlTitlesData(
-
                   topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
@@ -239,12 +215,10 @@ class DailyExpenseChart extends StatelessWidget {
                       interval: maxY / 4,
 
                       getTitlesWidget: (value, meta) {
-
                         String text;
 
                         if (value >= 1000) {
-                          text =
-                          '৳${(value / 1000).toStringAsFixed(1)}k';
+                          text = '৳${(value / 1000).toStringAsFixed(1)}k';
                         } else {
                           text = '৳${value.toInt()}';
                         }
@@ -273,15 +247,14 @@ class DailyExpenseChart extends StatelessWidget {
                       reservedSize: 28,
 
                       getTitlesWidget: (value, meta) {
-
                         final index = value.toInt();
 
-                        final startDay =
-                            (index * groupSize) + 1;
+                        final startDay = (index * groupSize) + 1;
 
-                        final endDay =
-                        ((index + 1) * groupSize)
-                            .clamp(1, daysInMonth);
+                        final endDay = ((index + 1) * groupSize).clamp(
+                          1,
+                          daysInMonth,
+                        );
 
                         return Padding(
                           padding: const EdgeInsets.only(top: 8),
@@ -303,24 +276,19 @@ class DailyExpenseChart extends StatelessWidget {
 
                 // TOOLTIP
                 lineTouchData: LineTouchData(
-
                   touchTooltipData: LineTouchTooltipData(
-
                     getTooltipItems: (touchedSpots) {
-
                       return touchedSpots.map((spot) {
-
                         final index = spot.x.toInt();
 
-                        final startDay =
-                            (index * groupSize) + 1;
+                        final startDay = (index * groupSize) + 1;
 
-                        final endDay =
-                        ((index + 1) * groupSize)
-                            .clamp(1, daysInMonth);
+                        final endDay = ((index + 1) * groupSize).clamp(
+                          1,
+                          daysInMonth,
+                        );
 
                         return LineTooltipItem(
-
                           '$startDay-$endDay\n৳${spot.y.toStringAsFixed(0)}',
 
                           const TextStyle(
@@ -336,9 +304,7 @@ class DailyExpenseChart extends StatelessWidget {
 
                 // LINE
                 lineBarsData: [
-
                   LineChartBarData(
-
                     spots: spots,
 
                     isCurved: true,
@@ -351,9 +317,7 @@ class DailyExpenseChart extends StatelessWidget {
 
                     isStrokeCapRound: true,
 
-                    dotData: const FlDotData(
-                      show: false,
-                    ),
+                    dotData: const FlDotData(show: false),
 
                     belowBarData: BarAreaData(
                       show: true,
@@ -363,12 +327,9 @@ class DailyExpenseChart extends StatelessWidget {
                         end: Alignment.bottomCenter,
 
                         colors: [
+                          const Color(0xFF03624C).withOpacity(0.22),
 
-                          const Color(0xFF03624C)
-                              .withOpacity(0.22),
-
-                          const Color(0xFF03624C)
-                              .withOpacity(0.01),
+                          const Color(0xFF03624C).withOpacity(0.01),
                         ],
                       ),
                     ),

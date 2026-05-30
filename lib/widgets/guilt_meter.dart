@@ -28,13 +28,13 @@ class _GuiltMeter extends State<GuiltMeter> {
   }
 
   IconData getIcon() {
-    if (guiltValue <= -80) return Icons.mood_bad_rounded; // Deep regret
+    if (guiltValue <= -80) return Icons.mood_bad_rounded;
     if (guiltValue < -30) return Icons.sentiment_very_dissatisfied_rounded;
     if (guiltValue < 0) return Icons.sentiment_dissatisfied_rounded;
     if (guiltValue == 0) return Icons.sentiment_neutral_rounded;
     if (guiltValue <= 40) return Icons.sentiment_satisfied_rounded;
     if (guiltValue < 80) return Icons.sentiment_very_satisfied_rounded;
-    return Icons.celebration_rounded; // Pure joy / Match the rocket message!
+    return Icons.celebration_rounded;
   }
 
   @override
@@ -66,7 +66,6 @@ class _GuiltMeter extends State<GuiltMeter> {
           ),
           const SizedBox(height: 15),
 
-          // Dynamic Feedback Message
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Row(
@@ -88,7 +87,6 @@ class _GuiltMeter extends State<GuiltMeter> {
 
           const SizedBox(height: 10),
 
-          // Slider
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: getColor().withOpacity(0.5),
@@ -111,7 +109,6 @@ class _GuiltMeter extends State<GuiltMeter> {
             ),
           ),
 
-          // Labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

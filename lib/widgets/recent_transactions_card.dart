@@ -12,10 +12,16 @@ class RecentTransactionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isIncome = transaction.type == TransactionType.income;
-    final Color amountColor = isIncome ? const Color(0xFF03624C) : Colors.redAccent;
+    final Color amountColor = isIncome
+        ? const Color(0xFF03624C)
+        : Colors.redAccent;
     final String sign = isIncome ? "+" : "-";
-    final IconData txIcon = isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded;
-    final Color iconBgColor = isIncome ? const Color(0xFF03624C).withOpacity(0.1) : Colors.redAccent.withOpacity(0.1);
+    final IconData txIcon = isIncome
+        ? Icons.arrow_downward_rounded
+        : Icons.arrow_upward_rounded;
+    final Color iconBgColor = isIncome
+        ? const Color(0xFF03624C).withOpacity(0.1)
+        : Colors.redAccent.withOpacity(0.1);
 
     return GestureDetector(
       onTap: () => _showTransactionDetails(context, transaction),
@@ -41,7 +47,10 @@ class RecentTransactionsCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: iconBgColor, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: iconBgColor,
+                      shape: BoxShape.circle,
+                    ),
                     child: Icon(txIcon, color: amountColor, size: 24),
                   ),
                   const SizedBox(width: 15),
@@ -50,12 +59,20 @@ class RecentTransactionsCard extends StatelessWidget {
                     children: [
                       Text(
                         transaction.title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Text(
                         transaction.category,
-                        style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -66,7 +83,11 @@ class RecentTransactionsCard extends StatelessWidget {
                 children: [
                   Text(
                     "$sign ৳${transaction.amount.toStringAsFixed(0)}",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: amountColor),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: amountColor,
+                    ),
                   ),
                   const SizedBox(height: 5),
                   Text(
@@ -84,8 +105,12 @@ class RecentTransactionsCard extends StatelessWidget {
 
   void _showTransactionDetails(BuildContext context, TransactionModel tx) {
     final bool isIncome = tx.type == TransactionType.income;
-    final Color themeColor = isIncome ? const Color(0xFF03624C) : Colors.redAccent;
-    final IconData icon = isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded;
+    final Color themeColor = isIncome
+        ? const Color(0xFF03624C)
+        : Colors.redAccent;
+    final IconData icon = isIncome
+        ? Icons.arrow_downward_rounded
+        : Icons.arrow_upward_rounded;
 
     String guiltText;
     Color guiltColor;
@@ -118,35 +143,47 @@ class RecentTransactionsCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Drag Handle
               Container(
                 width: 50,
                 height: 5,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               const SizedBox(height: 25),
 
-              // Header
               Container(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(color: themeColor.withOpacity(0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: themeColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(icon, color: themeColor, size: 35),
               ),
               const SizedBox(height: 15),
               Text(
                 "${isIncome ? '+' : '-'} ৳${tx.amount.toStringAsFixed(2)}",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: themeColor, letterSpacing: -1),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  color: themeColor,
+                  letterSpacing: -1,
+                ),
               ),
               const SizedBox(height: 5),
               Text(
                 tx.title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
                 textAlign: TextAlign.center,
               ),
 
               const SizedBox(height: 30),
 
-              // Details Group
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -155,58 +192,123 @@ class RecentTransactionsCard extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildDetailRow("Category", tx.category, Icons.category_outlined),
-                    const Divider(height: 25, thickness: 1, color: Colors.black12),
-                    _buildDetailRow("Date", "${tx.date.day}/${tx.date.month}/${tx.date.year}", Icons.calendar_today_outlined),
+                    _buildDetailRow(
+                      "Category",
+                      tx.category,
+                      Icons.category_outlined,
+                    ),
+                    const Divider(
+                      height: 25,
+                      thickness: 1,
+                      color: Colors.black12,
+                    ),
+                    _buildDetailRow(
+                      "Date",
+                      "${tx.date.day}/${tx.date.month}/${tx.date.year}",
+                      Icons.calendar_today_outlined,
+                    ),
 
                     if (tx.note != null && tx.note!.isNotEmpty) ...[
-                      const Divider(height: 25, thickness: 1, color: Colors.black12),
+                      const Divider(
+                        height: 25,
+                        thickness: 1,
+                        color: Colors.black12,
+                      ),
                       _buildDetailRow("Note", tx.note!, Icons.notes_outlined),
                     ],
 
-                    const Divider(height: 25, thickness: 1, color: Colors.black12),
+                    const Divider(
+                      height: 25,
+                      thickness: 1,
+                      color: Colors.black12,
+                    ),
 
-                    // Guilt Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.mood_rounded, size: 18, color: Colors.black54),
+                            Icon(
+                              Icons.mood_rounded,
+                              size: 18,
+                              color: Colors.black54,
+                            ),
                             SizedBox(width: 8),
-                            Text("Sentiment", style: TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500)),
+                            Text(
+                              "Sentiment",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: guiltColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Text(guiltText, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: guiltColor)),
+                          child: Text(
+                            guiltText,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: guiltColor,
+                            ),
+                          ),
                         ),
                       ],
                     ),
 
                     if (tx.isSubscription) ...[
-                      const Divider(height: 25, thickness: 1, color: Colors.black12),
+                      const Divider(
+                        height: 25,
+                        thickness: 1,
+                        color: Colors.black12,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.autorenew_rounded, size: 18, color: Colors.black54),
+                              Icon(
+                                Icons.autorenew_rounded,
+                                size: 18,
+                                color: Colors.black54,
+                              ),
                               SizedBox(width: 8),
-                              Text("Type", style: TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500)),
+                              Text(
+                                "Type",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF03624C).withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Text("Subscription", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF03624C))),
+                            child: const Text(
+                              "Subscription",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF03624C),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -217,50 +319,77 @@ class RecentTransactionsCard extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // Action Buttons (Edit & Delete)
               Row(
                 children: [
-                  // Edit Button
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context); // Close the modal
+                        Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TransactionPage(transactionToEdit: tx),
+                            builder: (context) =>
+                                TransactionPage(transactionToEdit: tx),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
-                      label: const Text("Edit", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                      icon: const Icon(
+                        Icons.edit_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      label: const Text(
+                        "Edit",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF03624C),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 15),
 
-                  // Delete Button
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         await FirestoreService().deleteTransaction(tx.id);
                         if (context.mounted) Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Transaction deleted"), backgroundColor: Colors.redAccent),
+                          const SnackBar(
+                            content: Text("Transaction deleted"),
+                            backgroundColor: Colors.redAccent,
+                          ),
                         );
                       },
-                      icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
-                      label: const Text("Delete", style: TextStyle(color: Colors.redAccent, fontSize: 15, fontWeight: FontWeight.w700)),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
+                      label: const Text(
+                        "Delete",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent.withOpacity(0.1),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     ),
                   ),
@@ -281,14 +410,25 @@ class RecentTransactionsCard extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: Colors.black54),
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
         Expanded(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
